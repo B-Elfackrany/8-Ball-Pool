@@ -8,7 +8,7 @@ import random
 PATH = os.getcwd()
 
 # ==========================================================
-#declaring the constants
+# declaring the constants
 RESOLUTION_W = 600
 RESOLUTION_H = 600
 
