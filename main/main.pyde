@@ -15,3 +15,4 @@ RESOLUTION_H = 600
 # ==========================================================
 # loading the images
 ball_1 = loadImage(PATH + "/assets" +"ball_1")
+ball_2 = loadImage(PATH + "/assets" +"ball_2")
