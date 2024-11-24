@@ -2,6 +2,8 @@
 import os 
 import math 
 import random 
+add_library('sound')
+
 
 # ==========================================================
 # getting the current working directory: 
@@ -14,7 +16,7 @@ RESOLUTION_H = 1000
 BALL_RADIUS = 50
 
 # ==========================================================
-# loading the images
+# loading the media
 cue = loadImage(PATH + "/media/" +"cue.png")
 table = loadImage(PATH + "/media/" +"table.png")
 
@@ -34,6 +36,9 @@ ball_13 = loadImage(PATH + "/media/" +"ball_13.png")
 ball_14 = loadImage(PATH + "/media/" +"ball_14.png")
 ball_15 = loadImage(PATH + "/media/" +"ball_15.png")
 
+collision_sound = SoundFile(this, PATH + "/media/" + "collision.mp3")
+strong_collision_sound = SoundFile(this, PATH + "/media/" + "strong_collision.mp3")
+pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
 
 # ==========================================================
 # classes
@@ -54,9 +59,19 @@ class Ball:
 
 # Sounds Class:
 class Sound:
-    def __init__(self, path):
-        self.path = path 
-        self.loops = 1
+    def __init__(self):
+        self.collision_sound = collision_sound
+        self.strong_collision_sound = strong_collision_sound
+        self.pocket_sound = pocket_sound
+        
+    def play_collision_sound(self, relative_speed):
+        if relative_speed> 5: # we can change the speed value as needed
+            self.strong_collision_sound.play()
+        else:
+            self.collision_sound.play()
+    
+    def play_pocket_sound(self):
+        self.pocket_sound.play()
         
 # Cue Class 
 class Cue: 
