@@ -4,19 +4,18 @@ import math
 import random 
 
 # ==========================================================
-#getting the current working directory: 
+# getting the current working directory: 
 PATH = os.getcwd()
 
 # ==========================================================
 # declaring the constants
 RESOLUTION_W = 1900
 RESOLUTION_H = 1000
-radius = 100
+BALL_RADIUS = 50
 
 # ==========================================================
 # loading the images
 cue = loadImage(PATH + "/media/" +"cue.png")
-
 table = loadImage(PATH + "/media/" +"table.png")
 
 ball_1 = loadImage(PATH + "/media/" +"ball_1.png")
@@ -38,6 +37,37 @@ ball_15 = loadImage(PATH + "/media/" +"ball_15.png")
 
 # ==========================================================
 # classes
+
+# Ball Class:
+class Ball:
+    def __init__(self, x, y, image, id, type):
+        self.x = x
+        self.y = y
+        self.vx = 0
+        self.vy = 0
+        self.image = image
+        self.rad = BALL_RADIUS
+        self.type = type
+    
+    def display(self):
+        image(self.image, self.x - BALL_RADIUS, self.y - BALL_RADIUS, BALL_RADIUS * 2, BALL_RADIUS * 2)
+
+# Sounds Class:
+class Sound:
+    def __init__(self, path):
+        self.path = path 
+        self.loops = 1
+        
+# Cue Class 
+class Cue: 
+    def __init__(self, ball):
+        self.ball = ball # to keep in reference with the cue ball
+        self.angle = 0 
+        self.power = 0
+
+class Game:
+    
+# ==========================================================
 
 def setup():
     size(RESOLUTION_W, RESOLUTION_H)
