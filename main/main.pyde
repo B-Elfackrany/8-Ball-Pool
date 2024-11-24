@@ -65,10 +65,24 @@ class Cue:
         self.angle = 0 
         self.power = 0
 
+# Game Class
 class Game:
+    def __init__(self):
+        self.balls = []
+        
+    def draw(self):
+        image(table, 0, 0, RESOLUTION_W, RESOLUTION_H)
     
+    # def setup():
+        #maybe we can add calls to functions to randomely generate the plases of the balls ??
+        
 # ==========================================================
+game = Game()
 
 def setup():
     size(RESOLUTION_W, RESOLUTION_H)
-    image(table, 0, 0, RESOLUTION_W, RESOLUTION_H)
+    # game.setup()
+    
+def draw():
+    background(0)
+    game.draw()
