@@ -97,7 +97,7 @@ game = Game()
 def setup():
     size(RESOLUTION_W, RESOLUTION_H)
     # game.setup()
-    # pocket_sound.play()
+    # pocket_sound.play()  #remove this, its just for testing
     
 def draw():
     background(0)
