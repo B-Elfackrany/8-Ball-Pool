@@ -42,7 +42,6 @@ pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
 
 # ==========================================================
 # classes
-
 # Ball Class:
 class Ball:
     def __init__(self, x, y, image, id, type):
@@ -102,3 +101,6 @@ def setup():
 def draw():
     background(0)
     game.draw()
+    stroke(255,255,255)
+    fill(255,255,255)
+    ellipse(550, 650, 45, 45)
