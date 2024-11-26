@@ -11,8 +11,8 @@ PATH = os.getcwd()
 
 # ==========================================================
 # declaring the constants
-RESOLUTION_W = 1900
-RESOLUTION_H = 1000
+RESOLUTION_W = 1000
+RESOLUTION_H = 800
 BALL_RADIUS = 50
 
 # ==========================================================
@@ -86,7 +86,7 @@ class Game:
         self.balls = []
         
     def draw(self):
-        image(table, 0, 0, RESOLUTION_W, RESOLUTION_H)
+        image(table, 20, 150, RESOLUTION_W - 40, RESOLUTION_H - 250)
     
     # def setup():
         #maybe we can add calls to functions to randomely generate the plases of the balls ??
