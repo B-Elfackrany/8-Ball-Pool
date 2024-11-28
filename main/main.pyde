@@ -9,7 +9,11 @@ add_library('sound')
 # height of game = 800
 # coordinates of top left corner of pool table image: (20, 150)
 # center of pocket 1 = (65, 201, 45, 45)
+# center of pocket 2 = (495, 190, 40, 40)
+# center of pocket 3 = (928, 201, 45, 45)
 # center of pocket 4 = (65, 650, 45, 45)
+# center of pocket 5 = (495, 660, 40, 40)
+# center of pocket 6 = (928, 650, 45, 45)
 
 
 
@@ -111,4 +115,4 @@ def draw():
     game.draw()
     stroke(255,255,255)
     fill(255,255,255)
-    ellipse(520, 650, 45, 45)
+    ellipse(928, 650, 45, 45)
