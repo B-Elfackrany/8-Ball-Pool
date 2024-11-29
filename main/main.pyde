@@ -5,6 +5,7 @@ import random
 add_library('sound')
 
 # ==========================================================
+# dimensions 
 # width of game = 1000
 # height of game = 800
 # coordinates of top left corner of pool table image: (20, 150)
@@ -115,4 +116,4 @@ def draw():
     game.draw()
     stroke(255,255,255)
     fill(255,255,255)
-    ellipse(928, 650, 45, 45)
+    # ellipse(928, 650, 45, 45)
