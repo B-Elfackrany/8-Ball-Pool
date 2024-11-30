@@ -15,8 +15,12 @@ add_library('sound')
 # center of pocket 4 = (65, 650, 45, 45)
 # center of pocket 5 = (495, 660, 40, 40)
 # center of pocket 6 = (928, 650, 45, 45)
-
-
+# top cushion 1 line(110, 213, 462, 213)
+# top cushion 2 line(525, 213, 884, 213)
+# bottom cushion 1 line(110, 635, 462, 635)
+# bottom cushion 2 line(525, 635, 884, 635)
+# verticle cushion 1 line(82, 246, 82, 602)
+# verticle cushion 2 line(917, 246, 917, 602)
 
 # ==========================================================
 # getting the current working directory: 
@@ -52,6 +56,7 @@ ball_15 = loadImage(PATH + "/media/" +"ball_15.png")
 collision_sound = SoundFile(this, PATH + "/media/" + "collision.mp3")
 strong_collision_sound = SoundFile(this, PATH + "/media/" + "strong_collision.mp3")
 pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
+mario_sound = SoundFile(this, PATH + "/media/" + "mariokart.mp3")
 
 # ==========================================================
 # classes
@@ -75,6 +80,7 @@ class Sound:
         self.collision_sound = collision_sound
         self.strong_collision_sound = strong_collision_sound
         self.pocket_sound = pocket_sound
+        self.mario_sound = mario_sound
         
     def play_collision_sound(self, relative_speed):
         if relative_speed> 5: # we can change the speed value as needed
@@ -84,6 +90,10 @@ class Sound:
     
     def play_pocket_sound(self):
         self.pocket_sound.play()
+    
+    def play_mario_sound(self):
+        self.mario_sound.play()
+        mario_sound.loop()
         
 # Cue Class 
 class Cue: 
@@ -110,6 +120,9 @@ def setup():
     size(RESOLUTION_W, RESOLUTION_H)
     # game.setup()
     # pocket_sound.play()  #remove this, its just for testing
+    mario_sound.play()
+    mario_sound.loop()
+    
     
 def draw():
     background(0)
@@ -117,3 +130,4 @@ def draw():
     stroke(255,255,255)
     fill(255,255,255)
     # ellipse(928, 650, 45, 45)
+    # line(917, 246, 917, 602)
