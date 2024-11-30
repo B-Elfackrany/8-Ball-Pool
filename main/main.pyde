@@ -3,6 +3,7 @@ import os
 import math 
 import random 
 add_library('sound')
+add_library('gifAnimation')
 
 # ==========================================================
 # dimensions 
@@ -52,6 +53,11 @@ ball_12 = loadImage(PATH + "/media/" +"ball_12.png")
 ball_13 = loadImage(PATH + "/media/" +"ball_13.png")
 ball_14 = loadImage(PATH + "/media/" +"ball_14.png")
 ball_15 = loadImage(PATH + "/media/" +"ball_15.png")
+
+avatar1 = loadImage(PATH + "/media/" +"avatar1.png")
+avatar2 = loadImage(PATH + "/media/" +"avatar2.png")
+
+bgGIF = Gif(this, PATH + "/media/" + "bg_gif.gif")
 
 collision_sound = SoundFile(this, PATH + "/media/" + "collision.mp3")
 strong_collision_sound = SoundFile(this, PATH + "/media/" + "strong_collision.mp3")
@@ -106,12 +112,33 @@ class Cue:
 class Game:
     def __init__(self):
         self.balls = []
+                
+    def draw_avatars_and_names(self):
+        image(avatar1, RESOLUTION_W/2 - 150, 20, 100, 100)
+        image(avatar2, RESOLUTION_W/2 + 50, 20, 100, 100)
         
-    def draw(self):
-        image(table, 20, 150, RESOLUTION_W - 40, RESOLUTION_H - 250)
+        fill(255,255,255)
+        textSize(20)
+        textAlign(CENTER)
+        text("Player 1", RESOLUTION_W/2 - 200, 50)
+        text("Player 2", RESOLUTION_W/2 + 200, 50)
+        
+    def drawBallPlaceholders(self):
+        positions = [(200, 50), (230, 50), (260, 50), (290, 50), (320, 50), 
+                     (350, 50), (380, 50), (410, 50), (440, 50), (470, 50), 
+                     (500, 50), (530, 50), (560, 50), (590, 50), (620, 50)]
+        noStroke()
+        for x, y in positions:
+            fill(255,255,255) 
+            #ellipse(x, y, 30, 30)
     
     # def setup():
         #maybe we can add calls to functions to randomely generate the plases of the balls ??
+    
+    def draw(self):
+        image(table, 20, 150, RESOLUTION_W - 40, RESOLUTION_H - 250)
+        self.draw_avatars_and_names()
+        self.drawBallPlaceholders()
         
 # ==========================================================
 game = Game()
@@ -125,9 +152,8 @@ def setup():
     
     
 def draw():
-    background(0)
+    bgGIF.loop()
+    image(bgGIF, 0, 0, RESOLUTION_W, RESOLUTION_H)
     game.draw()
     stroke(255,255,255)
     fill(255,255,255)
-    # ellipse(928, 650, 45, 45)
-    # line(917, 246, 917, 602)
