@@ -112,6 +112,7 @@ class Point():
         else:
             self.x += other[0]
             self.y += other[1]
+            
 # Ball Class:
 class Ball:
     def __init__(self,x,y,ID):
@@ -123,12 +124,12 @@ class Ball:
         self.position = Point(x,y)
         self.velocity = Point(0,0)
         self.friction = FRICTION 
+        
     def hit(self,power, angle):
         x_comp = power * cos(angle)
         y_comp = power * sin(angle)
         print(x_comp,y_comp)
         self.velocity.move([x_comp,y_comp])
-        
         
     def apply_friction(self):
         v = math.sqrt(self.velocity.x**2 + self.velocity.y**2)
@@ -146,16 +147,19 @@ class Ball:
         elif self.position.x+self.radius >= RIGHT_RAIL and (self.position.y-self.radius>=245 and self.position.y+self.radius<=602):
             self.position.x = RIGHT_RAIL-self.radius
             self.velocity.x*=-1
+            
 # top cushion 1 line(110, 213, 462, 213)
 # top cushion 2 line(525, 213, 884, 213)
 # bottom cushion 1 line(110, 635, 462, 635)
 # bottom cushion 2 line(525, 635, 884, 635)
+
         if self.position.y-self.radius <= UPPER_RAIL and (462>=self.position.x-self.radius>=110  or 884>=self.position.x+self.radius>=525):
             self.position.y = UPPER_RAIL+self.radius
             self.velocity.y*=-1
         elif self.position.y+self.radius >= BOTTOM_RAIL and (462>=self.position.x-self.radius>=110  or 884>=self.position.x+self.radius>=525):
             self.position.y = BOTTOM_RAIL-self.radius
             self.velocity.y*=-1
+            
     def update(self):
         self.position.move(self.velocity)
         self.apply_friction()
@@ -165,8 +169,6 @@ class Ball:
         imageMode(CENTER)
         image(self.img,self.position.x,self.position.y)
         imageMode(CORNER)
-
-
 
 # Game Class
 class Game:
@@ -179,20 +181,24 @@ class Game:
         image(avatar1, RESOLUTION_W/2 - 150, 20, 100, 100)
         image(avatar2, RESOLUTION_W/2 + 50, 20, 100, 100)
         
-        fill(255,255,255)
+        fill(0,0,0)
         textSize(20)
         textAlign(CENTER)
         text("Player 1", RESOLUTION_W/2 - 200, 50)
         text("Player 2", RESOLUTION_W/2 + 200, 50)
         
     def drawBallPlaceholders(self):
-        positions = [(200, 50), (230, 50), (260, 50), (290, 50), (320, 50), 
-                     (350, 50), (380, 50), (410, 50), (440, 50), (470, 50), 
-                     (500, 50), (530, 50), (560, 50), (590, 50), (620, 50)]
+        positions = [(RESOLUTION_W/2 -410, 100), (RESOLUTION_W/2 -370, 100), 
+                     (RESOLUTION_W/2 -330, 100), (RESOLUTION_W/2 -290, 100), 
+                     (RESOLUTION_W/2 -250, 100), (RESOLUTION_W/2 - 210, 100), 
+                     (RESOLUTION_W/2 -170 , 100), (RESOLUTION_W/2 + 170, 100), 
+                     (RESOLUTION_W/2 + 210, 100), (RESOLUTION_W/2 +250, 100), 
+                      (RESOLUTION_W/2 +290, 100), (RESOLUTION_W/2 +330, 100), 
+                      (RESOLUTION_W/2 +370, 100), (RESOLUTION_W/2 +410, 100)]
         noStroke()
         for x, y in positions:
-            fill(255,255,255) 
-            #ellipse(x, y, 30, 30)
+            fill(0,0,0) 
+            ellipse(x, y, 30, 30)
     
     # def setup():
         #maybe we can add calls to functions to randomely generate the plases of the balls ??
