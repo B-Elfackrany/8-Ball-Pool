@@ -2,8 +2,8 @@
 import os 
 import math 
 import random 
-add_library('sound')
-add_library('gifAnimation')
+# add_library('sound')
+# add_library('gifAnimation')
 
 # ==========================================================
 # dimensions 
@@ -29,9 +29,15 @@ PATH = os.getcwd()
 
 # ==========================================================
 # declaring the constants
+UPPER_RAIL = 213
+BOTTOM_RAIL = 635
+LEFT_RAIL = 82
+RIGHT_RAIL = 917
 RESOLUTION_W = 1000
 RESOLUTION_H = 800
-BALL_RADIUS = 50
+BALL_RADIUS = 15 #<------------ DOUBLE CHECK THIS NUMBER
+BALL_TYPES = ["cue","solid","solid","solid","solid","solid","solid","solid","8-ball","stripes","stripes","stripes","stripes","stripes","stripes","stripes"]
+FRICTION = 0.2
 
 # ==========================================================
 # loading the media
@@ -57,29 +63,15 @@ ball_15 = loadImage(PATH + "/media/" +"ball_15.png")
 avatar1 = loadImage(PATH + "/media/" +"avatar1.png")
 avatar2 = loadImage(PATH + "/media/" +"avatar2.png")
 
-bgGIF = Gif(this, PATH + "/media/" + "bg_gif.gif")
+# bgGIF = Gif(this, PATH + "/media/" + "bg_gif.gif")
 
-collision_sound = SoundFile(this, PATH + "/media/" + "collision.mp3")
-strong_collision_sound = SoundFile(this, PATH + "/media/" + "strong_collision.mp3")
-pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
-mario_sound = SoundFile(this, PATH + "/media/" + "mariokart.mp3")
+# collision_sound = SoundFile(this, PATH + "/media/" + "collision.mp3")
+# strong_collision_sound = SoundFile(this, PATH + "/media/" + "strong_collision.mp3")
+# pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
+# mario_sound = SoundFile(this, PATH + "/media/" + "mariokart.mp3")
 
 # ==========================================================
 # classes
-# Ball Class:
-class Ball:
-    def __init__(self, x, y, image, id, type):
-        self.x = x
-        self.y = y
-        self.vx = 0
-        self.vy = 0
-        self.image = image
-        self.rad = BALL_RADIUS
-        self.type = type
-    
-    def display(self):
-        image(self.image, self.x - BALL_RADIUS, self.y - BALL_RADIUS, BALL_RADIUS * 2, BALL_RADIUS * 2)
-
 # Sounds Class:
 class Sound:
     def __init__(self):
@@ -101,17 +93,87 @@ class Sound:
         self.mario_sound.play()
         mario_sound.loop()
         
-# Cue Class 
-class Cue: 
-    def __init__(self, ball):
-        self.ball = ball # to keep in reference with the cue ball
-        self.angle = 0 
-        self.power = 0
+#Point Class:
+class Point():
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+    def set(self,other):
+        if isinstance(other,Point):
+            self.x = other.x
+            self.y = other.y
+        else:
+            self.x = other[0]
+            self.y = other[1]
+    def move(self,other):
+        if isinstance(other,Point):
+            self.x += other.x
+            self.y +=other.y
+        else:
+            self.x += other[0]
+            self.y += other[1]
+# Ball Class:
+class Ball:
+    def __init__(self,x,y,ID):
+        self.ID = ID
+        self.radius = BALL_RADIUS
+        self.type = BALL_TYPES[self.ID]
+        self.img = loadImage(PATH + "/media/" +"ball_"+str(ID)+".png")
+        self.img.resize(BALL_RADIUS*2,BALL_RADIUS*2)
+        self.position = Point(x,y)
+        self.velocity = Point(0,0)
+        self.friction = FRICTION 
+    def hit(self,power, angle):
+        x_comp = power * cos(angle)
+        y_comp = power * sin(angle)
+        print(x_comp,y_comp)
+        self.velocity.move([x_comp,y_comp])
+        
+        
+    def apply_friction(self):
+        v = math.sqrt(self.velocity.x**2 + self.velocity.y**2)
+        if v == 0:
+            return
+        theta = acos(abs(self.velocity.x)/v) if v!=0 else 0
+        v = max(0,v-FRICTION)
+        self.velocity.x = v*cos(theta)*(-1 if self.velocity.x<0 else 1)
+        self.velocity.y = v*sin(theta)*(-1 if self.velocity.y<0 else 1)
+        
+    def check_collision(self):
+        if self.position.x-self.radius <= LEFT_RAIL and (self.position.y-self.radius>=245 and self.position.y+self.radius<=602):
+            self.position.x = LEFT_RAIL+self.radius
+            self.velocity.x*=-1
+        elif self.position.x+self.radius >= RIGHT_RAIL and (self.position.y-self.radius>=245 and self.position.y+self.radius<=602):
+            self.position.x = RIGHT_RAIL-self.radius
+            self.velocity.x*=-1
+# top cushion 1 line(110, 213, 462, 213)
+# top cushion 2 line(525, 213, 884, 213)
+# bottom cushion 1 line(110, 635, 462, 635)
+# bottom cushion 2 line(525, 635, 884, 635)
+        if self.position.y-self.radius <= UPPER_RAIL and (462>=self.position.x-self.radius>=110  or 884>=self.position.x+self.radius>=525):
+            self.position.y = UPPER_RAIL+self.radius
+            self.velocity.y*=-1
+        elif self.position.y+self.radius >= BOTTOM_RAIL and (462>=self.position.x-self.radius>=110  or 884>=self.position.x+self.radius>=525):
+            self.position.y = BOTTOM_RAIL-self.radius
+            self.velocity.y*=-1
+    def update(self):
+        self.position.move(self.velocity)
+        self.apply_friction()
+        self.check_collision()
+        
+    def display(self):
+        imageMode(CENTER)
+        image(self.img,self.position.x,self.position.y)
+        imageMode(CORNER)
+
+
 
 # Game Class
 class Game:
     def __init__(self):
         self.balls = []
+        self.balls.append(Ball(200,400,1))
+        self.pockets =[]
                 
     def draw_avatars_and_names(self):
         image(avatar1, RESOLUTION_W/2 - 150, 20, 100, 100)
@@ -134,9 +196,14 @@ class Game:
     
     # def setup():
         #maybe we can add calls to functions to randomely generate the plases of the balls ??
-    
+    def update(self):
+        for ball in self.balls:
+            ball.update()
     def draw(self):
+        self.update()
         image(table, 20, 150, RESOLUTION_W - 40, RESOLUTION_H - 250)
+        for ball in self.balls:
+            ball.display()
         self.draw_avatars_and_names()
         self.drawBallPlaceholders()
         
@@ -147,13 +214,16 @@ def setup():
     size(RESOLUTION_W, RESOLUTION_H)
     # game.setup()
     # pocket_sound.play()  #remove this, its just for testing
-    mario_sound.play()
-    mario_sound.loop()
-    
-    
+    # mario_sound.play() 
+    # mario_sound.loop()
 def draw():
-    bgGIF.loop()
-    image(bgGIF, 0, 0, RESOLUTION_W, RESOLUTION_H)
+    # bgGIF.loop()
+    # image(bgGIF, 0, 0, RESOLUTION_W, RESOLUTION_H)
+    background(255,255,255)
     game.draw()
     stroke(255,255,255)
     fill(255,255,255)
+    
+def keyPressed():
+    game.balls[0].hit(20,PI/3)
+    
