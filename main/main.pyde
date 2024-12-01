@@ -272,15 +272,13 @@ def setup():
     buttons.append(Button(450, 500, 100, 100, sound_button, toggle_sound))
     buttons.append(Button(350, 600, 320, 110, quit_button, quit_game))
     
-'''def draw():
+def draw():
     # bgGIF.loop()
     # image(bgGIF, 0, 0, RESOLUTION_W, RESOLUTION_H)
     background(255,255,255)
     game.draw()
     player.draw()
-    stroke(255,255,255)
-    fill(255,255,255)
-    
+    '''
 def keyPressed():
     game.balls[0].hit(20,PI/3)'''
     
@@ -301,7 +299,7 @@ def draw_home_page():
         button.display()
 
 def draw_game():
-    background(0)
+    background(255,255,255)
     game.draw()
     
 def mousePressed():
