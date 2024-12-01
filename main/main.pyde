@@ -2,8 +2,8 @@
 import os 
 import math 
 import random 
-# add_library('sound')
-# add_library('gifAnimation')
+add_library('sound')
+add_library('gifAnimation')
 #test
 # ==========================================================
 # dimensions 
