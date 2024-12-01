@@ -70,6 +70,8 @@ avatar2 = loadImage(PATH + "/media/" +"avatar2.png")
 # pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
 # mario_sound = SoundFile(this, PATH + "/media/" + "mariokart.mp3")
 
+# font = loadFont(PATH + "/media/" +"font.ttf")
+
 # ==========================================================
 # classes
 # Sounds Class:
@@ -120,7 +122,7 @@ class Ball:
         self.radius = BALL_RADIUS
         self.type = BALL_TYPES[self.ID]
         self.img = loadImage(PATH + "/media/" +"ball_"+str(ID)+".png")
-        self.img.resize(BALL_RADIUS*2,BALL_RADIUS*2)
+        # self.img.resize(BALL_RADIUS*2,BALL_RADIUS*2)
         self.position = Point(x,y)
         self.velocity = Point(0,0)
         self.friction = FRICTION 
@@ -177,17 +179,38 @@ class Game:
         self.balls.append(Ball(200,400,1))
         self.pockets =[]
                 
+    # def setup():
+        #maybe we can add calls to functions to randomely generate the plases of the balls ??
+ 
+    def update(self):
+        for ball in self.balls:
+            ball.update()
+    def draw(self):
+        self.update()
+        image(table, 20, 150, RESOLUTION_W - 40, RESOLUTION_H - 250)
+#         RESOLUTION_W = 1000
+# RESOLUTION_H = 800
+        for ball in self.balls:
+            ball.display()
+        
+# Player class 
+class Player:
+    def __init__(self):
+        xyz = 2
+
     def draw_avatars_and_names(self):
         image(avatar1, RESOLUTION_W/2 - 150, 20, 100, 100)
         image(avatar2, RESOLUTION_W/2 + 50, 20, 100, 100)
         
         fill(0,0,0)
         textSize(20)
+        # textFont(font)
         textAlign(CENTER)
         text("Player 1", RESOLUTION_W/2 - 200, 50)
         text("Player 2", RESOLUTION_W/2 + 200, 50)
         
     def drawBallPlaceholders(self):
+        # this function makes the placeholders for the balls of each player
         positions = [(RESOLUTION_W/2 -410, 100), (RESOLUTION_W/2 -370, 100), 
                      (RESOLUTION_W/2 -330, 100), (RESOLUTION_W/2 -290, 100), 
                      (RESOLUTION_W/2 -250, 100), (RESOLUTION_W/2 - 210, 100), 
@@ -199,22 +222,14 @@ class Game:
         for x, y in positions:
             fill(0,0,0) 
             ellipse(x, y, 30, 30)
-    
-    # def setup():
-        #maybe we can add calls to functions to randomely generate the plases of the balls ??
-    def update(self):
-        for ball in self.balls:
-            ball.update()
+
     def draw(self):
-        self.update()
-        image(table, 20, 150, RESOLUTION_W - 40, RESOLUTION_H - 250)
-        for ball in self.balls:
-            ball.display()
         self.draw_avatars_and_names()
         self.drawBallPlaceholders()
         
 # ==========================================================
 game = Game()
+player = Player()
 
 def setup():
     size(RESOLUTION_W, RESOLUTION_H)
@@ -227,6 +242,7 @@ def draw():
     # image(bgGIF, 0, 0, RESOLUTION_W, RESOLUTION_H)
     background(255,255,255)
     game.draw()
+    player.draw()
     stroke(255,255,255)
     fill(255,255,255)
     
