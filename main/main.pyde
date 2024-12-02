@@ -65,10 +65,10 @@ avatar2 = loadImage(PATH + "/media/" +"avatar2.png")
 
 # bgGIF = Gif(this, PATH + "/media/" + "bg_gif.gif")
 
-# collision_sound = SoundFile(this, PATH + "/media/" + "collision.mp3")
-# strong_collision_sound = SoundFile(this, PATH + "/media/" + "strong_collision.mp3")
-# pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
-# mario_sound = SoundFile(this, PATH + "/media/" + "mariokart.mp3")
+collision_sound = SoundFile(this, PATH + "/media/" + "collision.mp3")
+strong_collision_sound = SoundFile(this, PATH + "/media/" + "strong_collision.mp3")
+pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
+mario_sound = SoundFile(this, PATH + "/media/" + "mariokart.mp3")
 
 # font = loadFont(PATH + "/media/" +"font.ttf")
 
