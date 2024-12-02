@@ -234,6 +234,8 @@ class Ball:
             self.check_collision()
         
     def display(self):
+        if self.ID==0:
+            print("I AM HERE MFERS")
         if not self.is_pocketed:
             imageMode(CENTER)
             image(self.img,self.position.x,self.position.y)
@@ -294,6 +296,7 @@ class Game:
         self.curx=0
         self.cury=0
     def start(self):
+        print("I AM ALIVE")
         self.alive=1
     def drag(self,x,y):
         if self.alive:
@@ -335,6 +338,7 @@ class Game:
     def update(self):
         for ball in self.balls:
             ball.update()
+        print("UPDATING GAME")
         self.cue.update()
         for ball1 in self.balls:
             for ball2 in self.balls:
@@ -563,10 +567,6 @@ def draw():
         homepage.draw_instructions_page()
     else:
         draw_game()
-    # background(255,255,255)
-    # game.draw()
-    # player.draw()
-
 def mousePressed():
     global homepage
     homepage.handle_mouse_press(mouseX, mouseY)
