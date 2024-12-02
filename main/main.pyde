@@ -4,7 +4,7 @@ import math
 import random 
 add_library('sound')
 add_library('gifAnimation')
-#test
+
 # ==========================================================
 # dimensions 
 # width of game = 1000
@@ -251,88 +251,50 @@ class Button:
     def handle_click(self):
         if self.action:
             self.action()
-        
-# ==========================================================
 
-game = Game()
-player = Player()
-buttons = []
-on_home_page = True
-on_instructions_page = False
-
-def setup():
-    global buttons
-    size(RESOLUTION_W, RESOLUTION_H)
-    # game.setup()
-    # pocket_sound.play()  #remove this, its just for testing
-    # mario_sound.play() 
-    # mario_sound.loop()
-    buttons.append(Button(350, 300, 320, 110, play_button, start_game))
-    buttons.append(Button(450, 400, 100, 100, help_button, show_instructions))
-    buttons.append(Button(450, 500, 100, 100, sound_button, toggle_sound))
-    buttons.append(Button(350, 600, 320, 110, quit_button, quit_game))
-    
-def draw():
-    # bgGIF.loop()
-    # image(bgGIF, 0, 0, RESOLUTION_W, RESOLUTION_H)
-    background(255,255,255)
+# Functions used in the homepage class
+def start_game():
+    global homepage
+    homepage.on_home_page = False
+   
+def draw_game():
+    background(255, 255, 255)
     game.draw()
     player.draw()
-    '''
-def keyPressed():
-    game.balls[0].hit(20,PI/3)'''
+
+def quit_game():
+    exit()
+
+def toggle_sound():
+    print("Toggling sound")
     
-def draw():
-    global on_home_page
-    global on_instructions_page
-    if on_home_page:
-        draw_home_page()
-    elif on_instructions_page:
-        draw_instructions_page()
-    else:
-        draw_game()
+# Homepage class
+class HomePage:
+    def __init__(self):
+        self.buttons = []
+        self.home_page_image = home_page_image
+        self.on_home_page = True
+        self.on_instructions_page = False
+        self.setup_buttons()
         
-def draw_home_page():
-    background(0)
-    image(home_page_image, 0, 0, RESOLUTION_W, RESOLUTION_H, 211, 0, 1498, 1080)
-    for button in buttons:
-        button.display()
+    def setup_buttons(self):
+        self.buttons.append(Button(350, 300, 320, 110, play_button, start_game))
+        self.buttons.append(Button(450, 400, 100, 100, help_button, self.show_instructions))
+        self.buttons.append(Button(450, 500, 100, 100, sound_button, toggle_sound))
+        self.buttons.append(Button(350, 600, 320, 110, quit_button, quit_game))
 
-def draw_game():
-    background(255,255,255)
-    game.draw()
-    
-def mousePressed():
-    global on_home_page, on_instructions_page
-    if on_home_page:
-        for button in buttons:
-            if button.is_hovered(mouseX, mouseY):
-                button.handle_click()
-    elif on_instructions_page:
-        # Check if the Back button is clicked
-        if 20 <= mouseX <= 120 and 10 <= mouseY <= 60:
-            on_instructions_page = False
-            on_home_page = True
+    def draw_home_page(self):
+        background(0)
+        image(self.home_page_image, 0, 0, RESOLUTION_W, RESOLUTION_H, 211, 0, 1498, 1080)
+        for button in self.buttons:
+            button.display()
 
-def start_game():
-    global on_home_page
-    global game
-    on_home_page = False
-    #setup_game()
-
-def show_instructions():
-    print("Displaying instructions")
-    global on_home_page
-    global on_instructions_page
-    on_home_page = False
-    on_instructions_page = True
-    
-def draw_instructions_page():
-    background(150,123,182)
-    textAlign(CENTER, CENTER)
-    textSize(15)
-    fill(255)
-    rules = """RULES OF 8-BALL POOL
+    def draw_instructions_page(self):
+        background(150, 123, 182)
+        textAlign(CENTER, CENTER)
+        textSize(15)
+        fill(255)
+        rules = """RULES OF 8-BALL POOL
 Objective:
 Be the first to pocket all your group of balls (solids or stripes) and then legally pocket the 8-ball.
 
@@ -356,7 +318,7 @@ The 8-Ball:
 - Must call the pocket for the 8-ball before shooting.
 
 Fouls:
-- Failing to hit your group ball first, failing to hit a rail or pocket a ball after contact, pocketing the cue ball
+- Failing to hit your group ball first, failing to hit a rail or pocket a ball after contact, pocketing the cue ball.
 Fouls give the opponent ball in hand, allowing them to place the cue ball anywhere.
 
 Winning:
@@ -365,21 +327,63 @@ You win by legally pocketing the 8-ball after clearing your group balls.
 Losing:
 - You pocket the 8-ball before clearing your group balls or you pocket the cue ball while pocketing the 8-ball.
 """
+        text(rules, RESOLUTION_W / 2, RESOLUTION_H / 2)
+
+        fill(0, 0, 0)
+        rect(20, 10, 100, 50, 10)
+        fill(255)
+        textSize(20)
+        text("BACK", 70, 32)
+
+    def handle_mouse_press(self, mouse_x, mouse_y):
+        if self.on_home_page:
+            for button in self.buttons:
+                if button.is_hovered(mouse_x, mouse_y):
+                    button.handle_click()
+        elif self.on_instructions_page:
+            # Check if the Back button is clicked
+            if 20 <= mouse_x <= 120 and 10 <= mouse_y <= 60:
+                self.on_instructions_page = False
+                self.on_home_page = True
+
+    def show_instructions(self):
+        self.on_home_page = False
+        self.on_instructions_page = True
+                
+# ==========================================================
+
+game = Game()
+player = Player()
+homepage = HomePage()
+
+def setup():
+    size(RESOLUTION_W, RESOLUTION_H)
+    # game.setup()
+    # pocket_sound.play()  #remove this, its just for testing
+    # mario_sound.play() 
+    # mario_sound.loop()
     
-    text(rules, RESOLUTION_W / 2, RESOLUTION_H / 2) 
+def draw():
+    # bgGIF.loop()
+    # image(bgGIF, 0, 0, RESOLUTION_W, RESOLUTION_H)
+    background(255,255,255)
+    game.draw()
+    player.draw()
+    '''
+def keyPressed():
+    game.balls[0].hit(20,PI/3)'''
     
-    fill(0, 0, 0)
-    rect(20, 10, 100, 50, 10)
-    fill(255)
-    textSize(20)
-    text("BACK", 70, 32)
+def draw():
+    global homepage
+    if homepage.on_home_page:
+        homepage.draw_home_page()
+    elif homepage.on_instructions_page:
+        homepage.draw_instructions_page()
+    else:
+        draw_game()
 
-
-def quit_game():
-    exit()
-
-def toggle_sound():
-    print("Toggling sound")
-
-#def setup_game():
-    
+def mousePressed():
+    global homepage
+    homepage.handle_mouse_press(mouseX, mouseY)
+        
+  
