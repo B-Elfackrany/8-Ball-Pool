@@ -70,7 +70,7 @@ strong_collision_sound = SoundFile(this, PATH + "/media/" + "strong_collision.mp
 pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
 mario_sound = SoundFile(this, PATH + "/media/" + "mariokart.mp3")
 
-font = loadFont(PATH + "/media/" +"font.ttf")
+# font = loadFont(PATH + "/media/" +"font.ttf")
 
 play_button = loadImage(PATH + "/media/" + "play_button.png")
 help_button = loadImage(PATH + "/media/" + "help_button.png")
@@ -363,12 +363,6 @@ def setup():
     # mario_sound.play() 
     # mario_sound.loop()
     
-def draw():
-    # bgGIF.loop()
-    # image(bgGIF, 0, 0, RESOLUTION_W, RESOLUTION_H)
-    background(255,255,255)
-    game.draw()
-    player.draw()
     '''
 def keyPressed():
     game.balls[0].hit(20,PI/3)'''
@@ -381,6 +375,9 @@ def draw():
         homepage.draw_instructions_page()
     else:
         draw_game()
+    # background(255,255,255)
+    # game.draw()
+    # player.draw()
 
 def mousePressed():
     global homepage
