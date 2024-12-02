@@ -66,10 +66,10 @@ avatar2 = loadImage(PATH + "/media/" +"avatar2.png")
 
 # bgGIF = Gif(this, PATH + "/media/" + "bg_gif.gif")
 
-collision_sound = SoundFile(this, PATH + "/media/" + "collision.mp3")
-strong_collision_sound = SoundFile(this, PATH + "/media/" + "strong_collision.mp3")
-pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
-mario_sound = SoundFile(this, PATH + "/media/" + "mariokart.mp3")
+# collision_sound = SoundFile(this, PATH + "/media/" + "collision.mp3")
+# strong_collision_sound = SoundFile(this, PATH + "/media/" + "strong_collision.mp3")
+# pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
+# mario_sound = SoundFile(this, PATH + "/media/" + "mariokart.mp3")
 
 # font = loadFont(PATH + "/media/" +"font.ttf")
 
@@ -226,15 +226,19 @@ class CueBall(Ball):
         angle = math.atan(float(y) / (x)) if x!=0 else PI/2
         if(x>0 and y<0):
             angle = PI+angle
-        elif (x>0 and y>0):
+        elif (x>=0 and y>=0):
             angle = PI+angle
         elif (x<0 and y>0):
             angle = 2*PI+angle
         
         tracker = Point(100*-cos(angle)+self.position.x,100*-sin(angle)+self.position.y)
         # print(tracker.x,tracker.y)
-        fill(255,0,0)
-        circle(tracker.x,tracker.y,5)
+        if(self.velocity.x==0 and self.velocity.y==0):
+            fill(255,0,0)
+            circle(tracker.x,tracker.y,5)
+            stroke(3)
+            # strokeFill(220, 220, 220)
+            line(100*cos(angle)+self.position.x,100*sin(angle)+self.position.y,200*cos(angle)+self.position.x,200*sin(angle)+self.position.y)
         return angle
         
     # def update(self):
