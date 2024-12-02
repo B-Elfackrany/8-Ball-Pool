@@ -1,10 +1,9 @@
 # importing relevant libraries: 
-#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 import os 
 import math 
 import random 
-# add_library('sound')
-# add_library('gifAnimation')
+add_library('sound')
+add_library('gifAnimation')
 
 # ==========================================================
 # dimensions 
@@ -145,8 +144,6 @@ class Ball:
         y_comp = power * sin(angle)
         # print(x_comp,y_comp)
         self.velocity.move([x_comp,y_comp])
-        
-
     
     def pocket(self):
         print('pocketed')
@@ -249,14 +246,25 @@ class Game:
     def __init__(self):
         self.alive=0
         self.balls = []
-        self.balls.append(Ball(200,400,1))
+        self.balls.append(Ball(240+30,275+150,1))
+        self.balls.append(Ball(210+30,260+150,2))
+        self.balls.append(Ball(210+30,290+150,3))
+        self.balls.append(Ball(180+30,245+150,4))
+        self.balls.append(Ball(180+30,305+150,15))
+        self.balls.append(Ball(150+30,230+150,5))
+        self.balls.append(Ball(150+30,260+150,6))
+        self.balls.append(Ball(150+30,290+150,7))
+        self.balls.append(Ball(180+30,275+150,8))
+        self.balls.append(Ball(150+30,320+150,9))
+        self.balls.append(Ball(120+30,215+150,10))
+        self.balls.append(Ball(120+30,245+150,11))
+        self.balls.append(Ball(120+30,275+150,12))
+        # self.balls.append(Ball(120+30,305+150,13))
+        self.balls.append(Ball(120+30,335+150,14))
+
         self.cue = CueBall(200,600,0)
         # seballs.append(cue)
         self.pockets =[]
-<<<<<<< Updated upstream
-                
-    # def setup():
-        #maybe we can add calls to functions to randomely generate the plases of the balls ??
 
         self.curx=0
         self.cury=0
@@ -318,8 +326,6 @@ class Game:
             for ball in self.balls:
                 ball.display()
             self.cue.display()
-=======
->>>>>>> Stashed changes
         
     def draw_avatars_and_names(self):
         image(avatar1, RESOLUTION_W/2 - 150, 20, 100, 100)
