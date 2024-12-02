@@ -363,10 +363,6 @@ def setup():
     # mario_sound.play() 
     # mario_sound.loop()
     
-    '''
-def keyPressed():
-    game.balls[0].hit(20,PI/3)'''
-    
 def draw():
     global homepage
     if homepage.on_home_page:
