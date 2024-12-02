@@ -2,8 +2,8 @@
 import os 
 import math 
 import random 
-add_library('sound')
-add_library('gifAnimation')
+# add_library('sound')
+# add_library('gifAnimation')
 
 # ==========================================================
 # dimensions 
@@ -81,49 +81,49 @@ home_page_image = loadImage(PATH + "/media/" + "home_page.PNG")
 # ==========================================================
 # classes
 # Sounds Class:
-class Sound:
-    def __init__(self):
-        self.collision_sound = collision_sound
-        self.strong_collision_sound = strong_collision_sound
-        self.pocket_sound = pocket_sound
-        self.mario_sound = mario_sound
-        self.is_sound_on = True
-        self.volume_level = 1.0
-        self.is_decreasing = True
+# class Sound:
+#     def __init__(self):
+#         self.collision_sound = collision_sound
+#         self.strong_collision_sound = strong_collision_sound
+#         self.pocket_sound = pocket_sound
+#         self.mario_sound = mario_sound
+#         self.is_sound_on = True
+#         self.volume_level = 1.0
+#         self.is_decreasing = True
         
-    def play_collision_sound(self, relative_speed):
-        #this functions plays the collision sound when balls collide
-        if relative_speed> 5: # we can change the speed value as needed
-            self.strong_collision_sound.play()
-        else:
-            self.collision_sound.play()
+#     def play_collision_sound(self, relative_speed):
+#         #this functions plays the collision sound when balls collide
+#         if relative_speed> 5: # we can change the speed value as needed
+#             self.strong_collision_sound.play()
+#         else:
+#             self.collision_sound.play()
     
-    def play_pocket_sound(self):
-        # this function plays the pocket sound when a ball is pocketed
-        self.pocket_sound.play()
+#     def play_pocket_sound(self):
+#         # this function plays the pocket sound when a ball is pocketed
+#         self.pocket_sound.play()
     
-    def play_mario_sound(self):
-        # this function plays the background music 
-        self.mario_sound.play()
-        self.mario_sound.loop()
-        self.mario_sound.amp(self.volume_level)
+#     def play_mario_sound(self):
+#         # this function plays the background music 
+#         self.mario_sound.play()
+#         self.mario_sound.loop()
+#         self.mario_sound.amp(self.volume_level)
         
-    def toggle_sound(self):
-        if not self.is_sound_on:            
-            self.mario_sound.loop()
-            self.is_sound_on = True             
-        else:
-            if self.is_decreasing:
-                # Decrease volume if sound is on
-                self.volume_level = max(0.0, self.volume_level - 0.1)  # Cap volume at 0.0
-                if self.volume_level == 0.0:
-                    self.is_decreasing = False
-            else:
-                self.volume_level = min(1.0, self.volume_level + 0.1)
-                if self.volume_level == 1.0:
-                    self.is_decreasing = True       
+#     def toggle_sound(self):
+#         if not self.is_sound_on:            
+#             self.mario_sound.loop()
+#             self.is_sound_on = True             
+#         else:
+#             if self.is_decreasing:
+#                 # Decrease volume if sound is on
+#                 self.volume_level = max(0.0, self.volume_level - 0.1)  # Cap volume at 0.0
+#                 if self.volume_level == 0.0:
+#                     self.is_decreasing = False
+#             else:
+#                 self.volume_level = min(1.0, self.volume_level + 0.1)
+#                 if self.volume_level == 1.0:
+#                     self.is_decreasing = True       
 
-            self.mario_sound.amp(self.volume_level)
+#             self.mario_sound.amp(self.volume_level)
         
 #Point Class:
 class Point():
@@ -228,7 +228,7 @@ class Ball:
                 self.pocket()
     def update(self):
         if not self.is_pocketed:
-            print(self.ID)
+            # print(self.ID)
             self.position.move(self.velocity)
             self.apply_friction()
             self.check_collision()
@@ -346,15 +346,6 @@ class Game:
                     continue
                 self.check_collision(ball1,ball2)
             self.check_collision(ball1,self.cue)
-    def draw(self):
-        if self.alive:
-            image(table, 20, 150, RESOLUTION_W - 40, RESOLUTION_H - 250)
-            self.cue.track()
-            self.update()
-            print(self.cue.velocity.x,self.cue.velocity.y)
-            for ball in self.balls:
-                ball.display()
-            self.cue.display()
         
     def draw_avatars_and_names(self):
         image(avatar1, RESOLUTION_W/2 - 150, 20, 100, 100)
@@ -393,19 +384,18 @@ class Game:
             
     def draw(self):
 
-        self.draw_avatars_and_names()
-        self.drawBallPlaceholders()
-        self.update()
-        image(table, 20, 150, RESOLUTION_W - 40, RESOLUTION_H - 250)
-#         RESOLUTION_W = 1000
-# RESOLUTION_H = 800
-        for ball in self.balls:
-            ball.display()
-        
-    def update(self):
-        for ball in self.balls:
-            ball.update()
-    
+        if self.alive:
+            print("TESTTT")
+            image(table, 20, 150, RESOLUTION_W - 40, RESOLUTION_H - 250)
+            self.cue.track()
+            self.update()
+            print(self.cue.velocity.x,self.cue.velocity.y)
+            for ball in self.balls:
+                ball.display()
+            self.cue.display()
+            self.draw_avatars_and_names()
+            self.drawBallPlaceholders()
+
     def setup(self):
         player1 = Player("Player 1")
         player2 = Player("Player 2")
@@ -445,9 +435,9 @@ class Button:
 def start_game():
     global homepage
     homepage.on_home_page = False
+    game.start()
    
 def draw_game():
-    game.start()
     background(255, 255, 255)
     game.draw()
 
@@ -545,11 +535,11 @@ Losing:
 game = Game()
 # player = Player()
 homepage = HomePage()
-sound_manager = Sound()
+# sound_manager = Sound()
 
 def setup():
     size(RESOLUTION_W, RESOLUTION_H)
-    sound_manager.play_mario_sound()
+    # sound_manager.play_mario_sound()
     # game.setup()
     # pocket_sound.play()  #remove this, its just for testing
     # mario_sound.play() 
@@ -565,6 +555,9 @@ def draw():
         homepage.draw_home_page()
     elif homepage.on_instructions_page:
         homepage.draw_instructions_page()
+    elif not game.alive:
+        print("ALIVING GAME")
+        start_game()
     else:
         draw_game()
 def mousePressed():
