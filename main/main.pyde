@@ -90,15 +90,18 @@ class Sound:
         self.mario_sound = mario_sound
         
     def play_collision_sound(self, relative_speed):
+        #this functions plays the collision sound when balls collide
         if relative_speed> 5: # we can change the speed value as needed
             self.strong_collision_sound.play()
         else:
             self.collision_sound.play()
     
     def play_pocket_sound(self):
+        # this function plays the pocket sound when a ball is pocketed
         self.pocket_sound.play()
     
     def play_mario_sound(self):
+        # this function plays the background music 
         self.mario_sound.play()
         mario_sound.loop()
         
@@ -133,6 +136,7 @@ class Ball:
         self.position = Point(x,y)
         self.velocity = Point(0,0)
         self.friction = FRICTION 
+        self.is_pocketed = 0
         
         self.is_pocketed = 0
     def hit(self,power, angle):
@@ -249,6 +253,7 @@ class Game:
         self.cue = CueBall(200,600,0)
         # seballs.append(cue)
         self.pockets =[]
+<<<<<<< Updated upstream
                 
     # def setup():
         #maybe we can add calls to functions to randomely generate the plases of the balls ??
@@ -313,12 +318,9 @@ class Game:
             for ball in self.balls:
                 ball.display()
             self.cue.display()
+=======
+>>>>>>> Stashed changes
         
-# Player class 
-class Player:
-    def __init__(self):
-        xyz = 2
-
     def draw_avatars_and_names(self):
         image(avatar1, RESOLUTION_W/2 - 150, 20, 100, 100)
         image(avatar2, RESOLUTION_W/2 + 50, 20, 100, 100)
@@ -343,12 +345,48 @@ class Player:
         for x, y in positions:
             fill(0,0,0) 
             ellipse(x, y, 30, 30)
+            
+    def pick_starting_player(players):
+        starting_player = random.choice(players)
+        # print(starting_player.name + "is starting the game and gets to break.")
+        return starting_player
 
+    def assign_groups_on_first_pocket(self, ball, current_player, opponent):
+        if not current_player.group and ball.type in ["solids", "stripes"]:
+            current_player.assign_group(ball.type)
+            opponent.assign_group("solids" if ball.type == "stripes" else "stripes")
+            
     def draw(self):
 
         self.draw_avatars_and_names()
         self.drawBallPlaceholders()
+        self.update()
+        image(table, 20, 150, RESOLUTION_W - 40, RESOLUTION_H - 250)
+#         RESOLUTION_W = 1000
+# RESOLUTION_H = 800
+        for ball in self.balls:
+            ball.display()
         
+    def update(self):
+        for ball in self.balls:
+            ball.update()
+    
+    def setup(self):
+        player1 = Player("Player 1")
+        player2 = Player("Player 2")
+        players = [player1, player2]
+        current_player = pick_starting_player(players)
+
+# Player class 
+class Player:
+    def __init__(self, name):
+        self.name = name 
+        self.group = None
+        self.list_of_balls = []
+        
+    def assign_group(self, group):
+        self.group = group
+
 class Button:
     def __init__(self, x, y, w, h, image, action):
         self.x = x
@@ -377,7 +415,6 @@ def draw_game():
     game.start()
     background(255, 255, 255)
     game.draw()
-    player.draw()
 
 def quit_game():
     exit()
@@ -470,7 +507,7 @@ Losing:
 # ==========================================================
 
 game = Game()
-player = Player()
+# player = Player()
 homepage = HomePage()
 
 def setup():
