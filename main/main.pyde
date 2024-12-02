@@ -36,7 +36,7 @@ LEFT_RAIL = 82
 RIGHT_RAIL = 917
 RESOLUTION_W = 1000
 RESOLUTION_H = 800
-BALL_RADIUS = 15 #<------------ DOUBLE CHECK THIS NUMBER
+BALL_RADIUS = 15
 BALL_TYPES = ["cue","solid","solid","solid","solid","solid","solid","solid","8-ball","stripes","stripes","stripes","stripes","stripes","stripes","stripes"]
 FRICTION = 0.2
 
@@ -66,10 +66,10 @@ avatar2 = loadImage(PATH + "/media/" +"avatar2.png")
 
 # bgGIF = Gif(this, PATH + "/media/" + "bg_gif.gif")
 
-# collision_sound = SoundFile(this, PATH + "/media/" + "collision.mp3")
-# strong_collision_sound = SoundFile(this, PATH + "/media/" + "strong_collision.mp3")
-# pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
-# mario_sound = SoundFile(this, PATH + "/media/" + "mariokart.mp3")
+collision_sound = SoundFile(this, PATH + "/media/" + "collision.mp3")
+strong_collision_sound = SoundFile(this, PATH + "/media/" + "strong_collision.mp3")
+pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
+mario_sound = SoundFile(this, PATH + "/media/" + "mariokart.mp3")
 
 # font = loadFont(PATH + "/media/" +"font.ttf")
 
@@ -492,6 +492,9 @@ def draw():
         homepage.draw_instructions_page()
     else:
         draw_game()
+    # background(255,255,255)
+    # game.draw()
+    # player.draw()
 
 def mousePressed():
     global homepage
