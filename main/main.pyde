@@ -49,6 +49,7 @@ FRICTION = 0.02
 # loading the media
 cue = loadImage(PATH + "/media/" +"ball_0.png")
 table = loadImage(PATH + "/media/" +"table.png")
+stick = loadImage(PATH + "/media/" +"stick.png")
 
 ball_1 = loadImage(PATH + "/media/" +"ball_1.png")
 ball_2 = loadImage(PATH + "/media/" +"ball_2.png")
@@ -316,6 +317,7 @@ class Game:
         self.alive=0
         self.balls = []
 
+<<<<<<< Updated upstream
         for x, y, n in positions:
             if n == 13: #<=================================================== FIX BALL 13
                 continue
@@ -323,6 +325,8 @@ class Game:
     
         self.players = [Player("Player One",1),Player("Player Two",2)]
         self.turn = self.pick_starting_player()
+=======
+>>>>>>> Stashed changes
         self.cue = CueBall(700,275+150,0)
         # seballs.append(cue)
         self.pockets =[]
