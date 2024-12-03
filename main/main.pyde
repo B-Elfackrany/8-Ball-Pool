@@ -162,9 +162,8 @@ class Ball:
         self.position = Point(x,y)
         self.velocity = Point(0,0)
         self.friction = FRICTION 
-        self.is_pocketed = 0
+        self.is_pocketed = 0        
         
-        self.is_pocketed = 0
     def hit(self,power, angle):
         print('hit')
         x_comp = power * cos(angle)
@@ -355,15 +354,13 @@ class Game:
     def assign_groups_on_first_pocket(self, ball, current_player, opponent):
         if not current_player.group and ball.type in ["solids", "stripes"]:
             current_player.assign_group(ball.type)
-            opponent.assign_group("solids" if ball.type == "stripes" else "stripes")
-            
+            opponent.assign_group("solids" if ball.type == "stripes" else "stripes")            
         
     def drag(self,x,y):
         if self.alive:
             self.in_hit=1
             self.curx=x
             self.cury=y
-
             
     def hit(self,x,y):
         if self.alive and (self.curx !=0 or self.cury!=0):
@@ -392,7 +389,6 @@ class Game:
             self.check_collision(ball1,self.cue)
     
     def display(self):
-
         if self.alive:
             print("TESTTT")
             image(table, 20, 150, RESOLUTION_W - 40, RESOLUTION_H - 250)
