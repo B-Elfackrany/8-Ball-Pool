@@ -2,8 +2,8 @@
 import os 
 import math 
 import random 
-add_library('sound')
-add_library('gifAnimation')
+# add_library('sound')
+# add_library('gifAnimation')
 
 # ==========================================================
 # dimensions 
@@ -253,7 +253,7 @@ class CueBall(Ball):
     def __init__(self,x,y,ID):
         Ball.__init__(self,x,y,ID)
         
-    def track(self):
+    def track(self,distance):
         x,y=mouseX-self.position.x,mouseY-self.position.y
         angle = math.atan(float(y) / (x)) if x!=0 else PI/2
         if(x>0 and y<0):
@@ -262,8 +262,8 @@ class CueBall(Ball):
             angle = PI+angle
         elif (x<0 and y>0):
             angle = 2*PI+angle
-        
-        tracker = Point(100*-cos(angle)+self.position.x,100*-sin(angle)+self.position.y)
+        distance+=100
+        tracker = Point(distance*-cos(angle)+self.position.x,distance*-sin(angle)+self.position.y)
         # print(tracker.x,tracker.y)
         if(self.velocity.x==0 and self.velocity.y==0):
             fill(255,0,0)
@@ -306,7 +306,7 @@ class Player:
         textSize(20)
         # textFont(font)
         textAlign(CENTER)
-        text("Player 1", RESOLUTION_W/2 + self.side*200, 50)
+        text("Player "+str(self.id), RESOLUTION_W/2 + self.side*200, 50)
     def display(self):
         self.draw_placeholders()
         self.draw_avatars()
@@ -326,7 +326,7 @@ class Game:
         self.cue = CueBall(700,275+150,0)
         # seballs.append(cue)
         self.pockets =[]
-
+        self.in_hit=0
         self.curx=0
         self.cury=0
         
@@ -348,16 +348,19 @@ class Game:
         
     def drag(self,x,y):
         if self.alive:
+            self.in_hit=1
             self.curx=x
             self.cury=y
+
             
     def hit(self,x,y):
         if self.alive and (self.curx !=0 or self.cury!=0):
             distance = math.sqrt((x-self.curx)**2+(y-self.cury)**2)
-            angle = self.cue.track()
-            print('aaa')
-            print(distance,angle)
-            self.cue.hit(distance/15,angle)
+            distance/=15
+            angle = self.cue.track(distance)
+            print('RELEASED')
+            self.cue.hit(distance,angle)
+            self.in_hit=0
             
     # def setup():
         #maybe we can add calls to functions to randomely generate the plases of the balls ??
@@ -384,7 +387,9 @@ class Game:
         if self.alive:
             print("TESTTT")
             image(table, 20, 150, RESOLUTION_W - 40, RESOLUTION_H - 250)
-            self.cue.track()
+            distance = math.sqrt((mouseX-self.curx)**2+(mouseY-self.cury)**2)
+            distance/=10
+            self.cue.track(distance if self.in_hit else 0)
             self.update()
             print(self.cue.velocity.x,self.cue.velocity.y)
             for ball in self.balls:
