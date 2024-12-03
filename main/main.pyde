@@ -269,6 +269,12 @@ class CueBall(Ball):
         if(self.velocity.x==0 and self.velocity.y==0):
             fill(255,0,0)
             circle(tracker.x,tracker.y,5)
+            # pushMatrix()
+            # rotateX(-angle)
+            # rotateY(-angle)
+            # rotate(angle)
+            # image(stick, tracker.x, tracker.y)
+            # popMatrix()
             stroke(3)
             # strokeFill(220, 220, 220)
             line(100*cos(angle)+self.position.x,100*sin(angle)+self.position.y,200*cos(angle)+self.position.x,200*sin(angle)+self.position.y)
@@ -317,7 +323,6 @@ class Game:
         self.alive=0
         self.balls = []
 
-<<<<<<< Updated upstream
         for x, y, n in positions:
             if n == 13: #<=================================================== FIX BALL 13
                 continue
@@ -325,8 +330,6 @@ class Game:
     
         self.players = [Player("Player One",1),Player("Player Two",2)]
         self.turn = self.pick_starting_player()
-=======
->>>>>>> Stashed changes
         self.cue = CueBall(700,275+150,0)
         # seballs.append(cue)
         self.pockets =[]
@@ -363,9 +366,6 @@ class Game:
             print(distance,angle)
             self.cue.hit(distance/15,angle)
             
-    # def setup():
-        #maybe we can add calls to functions to randomely generate the plases of the balls ??
-        
     def check_collision(self,ball1,ball2):
         distance = math.sqrt((ball1.position.x-ball2.position.x)**2+(ball1.position.y-ball2.position.y)**2)
         if distance<=2*BALL_RADIUS:
@@ -404,7 +404,6 @@ class Game:
         line(82, 246, 82, 602)
         line(917, 246, 917, 602)
         
-###########################################################################
 class Button:
     def __init__(self, x, y, w, h, image, action):
         self.x = x
@@ -515,7 +514,6 @@ Losing:
         self.on_instructions_page = True
                 
 # ==========================================================
-
 game = Game()
 # player = Player()
 homepage = HomePage()
