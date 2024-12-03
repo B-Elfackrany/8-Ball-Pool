@@ -49,6 +49,7 @@ FRICTION = 0.02
 # loading the media
 cue = loadImage(PATH + "/media/" +"ball_0.png")
 table = loadImage(PATH + "/media/" +"table.png")
+stick = loadImage(PATH + "/media/" +"stick.png")
 
 ball_1 = loadImage(PATH + "/media/" +"ball_1.png")
 ball_2 = loadImage(PATH + "/media/" +"ball_2.png")
@@ -268,6 +269,12 @@ class CueBall(Ball):
         if(self.velocity.x==0 and self.velocity.y==0):
             fill(255,0,0)
             circle(tracker.x,tracker.y,5)
+            # pushMatrix()
+            # rotateX(-angle)
+            # rotateY(-angle)
+            # rotate(angle)
+            # image(stick, tracker.x, tracker.y)
+            # popMatrix()
             stroke(3)
             # strokeFill(220, 220, 220)
             line(100*cos(angle)+self.position.x,100*sin(angle)+self.position.y,200*cos(angle)+self.position.x,200*sin(angle)+self.position.y)
@@ -362,9 +369,6 @@ class Game:
             self.cue.hit(distance,angle)
             self.in_hit=0
             
-    # def setup():
-        #maybe we can add calls to functions to randomely generate the plases of the balls ??
-        
     def check_collision(self,ball1,ball2):
         distance = math.sqrt((ball1.position.x-ball2.position.x)**2+(ball1.position.y-ball2.position.y)**2)
         if distance<=2*BALL_RADIUS:
@@ -405,7 +409,6 @@ class Game:
         line(82, 246, 82, 602)
         line(917, 246, 917, 602)
         
-###########################################################################
 class Button:
     def __init__(self, x, y, w, h, image, action):
         self.x = x
@@ -516,7 +519,6 @@ Losing:
         self.on_instructions_page = True
                 
 # ==========================================================
-
 game = Game()
 # player = Player()
 homepage = HomePage()
