@@ -347,8 +347,11 @@ class Game:
         
     def pick_starting_player(self):
         turn = random.choice([0,1])
-        starting_player = self.players[turn]
+        self.starting_player = self.players[turn]
         # print(starting_player.name + "is starting the game and gets to break.")
+        self.starting_player_text = str(self.starting_player.name) + " is starting the game and gets to break <3"
+        
+        # text(str(self.starting_player.name) + " is starting the game and gets to break.", RESOLUTION_W / 2, 180)
         return turn
 
     def assign_groups_on_first_pocket(self, ball, current_player, opponent):
@@ -402,6 +405,10 @@ class Game:
             self.cue.display()
             self.players[0].display()
             self.players[1].display()
+            fill(255,255,255)
+            textAlign(CENTER)
+            text(str(self.starting_player_text), RESOLUTION_W/2, 180)
+
         stroke(3)
         line(110, 213, 462, 213)
         line(525, 213, 884, 213)
