@@ -37,7 +37,13 @@ RESOLUTION_W = 1000
 RESOLUTION_H = 800
 BALL_RADIUS = 15
 BALL_TYPES = ["cue","solid","solid","solid","solid","solid","solid","solid","8-ball","stripes","stripes","stripes","stripes","stripes","stripes","stripes"]
-FRICTION = 0.2
+positions = [
+    (240, 275, 1), (210, 260, 2), (210, 290, 3), (180, 245, 4),
+    (180, 305, 15), (150, 230, 5), (150, 260, 6), (150, 290, 7),
+    (180, 275, 8), (150, 320, 9), (120, 215, 10), (120, 245, 11),
+    (120, 275, 12), (120, 305, 13), (120, 335, 14)
+]
+FRICTION = 0.02
 
 # ==========================================================
 # loading the media
@@ -60,15 +66,14 @@ ball_13 = loadImage(PATH + "/media/" +"ball_13.png")
 ball_14 = loadImage(PATH + "/media/" +"ball_14.png")
 ball_15 = loadImage(PATH + "/media/" +"ball_15.png")
 
-avatar1 = loadImage(PATH + "/media/" +"avatar1.png")
-avatar2 = loadImage(PATH + "/media/" +"avatar2.png")
+avatar = [loadImage(PATH + "/media/" +"avatar1.png"),loadImage(PATH + "/media/" +"avatar2.png")]
 
 # bgGIF = Gif(this, PATH + "/media/" + "bg_gif.gif")
 
-collision_sound = SoundFile(this, PATH + "/media/" + "collision.mp3")
-strong_collision_sound = SoundFile(this, PATH + "/media/" + "strong_collision.mp3")
-pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
-mario_sound = SoundFile(this, PATH + "/media/" + "mariokart.mp3")
+# collision_sound = SoundFile(this, PATH + "/media/" + "collision.mp3")
+# strong_collision_sound = SoundFile(this, PATH + "/media/" + "strong_collision.mp3")
+# pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
+# mario_sound = SoundFile(this, PATH + "/media/" + "mariokart.mp3")
 
 # font = loadFont(PATH + "/media/" +"font.ttf")
 
@@ -174,9 +179,12 @@ class Ball:
         if v == 0:
             return
         theta = acos(abs(self.velocity.x)/v) if v!=0 else 0
-        v = max(0,v-FRICTION)
+        v = max(0,v*(1-FRICTION))
+        if abs(v) < 0.01:
+            v = 0
         self.velocity.x = v*cos(theta)*(-1 if self.velocity.x<0 else 1)
         self.velocity.y = v*sin(theta)*(-1 if self.velocity.y<0 else 1)
+        
     def collide(self, other):
         dx = self.position.x - other.position.x
         dy = self.position.y - other.position.y
@@ -267,41 +275,82 @@ class CueBall(Ball):
         
     # def update(self):
     #     self.track()
-
+# Player class 
+class Player:
+    def __init__(self, name, id):
+        self.name = name 
+        self.id = id
+        self.side = -1 if self.id == 1 else 1
+        self.group = None
+        self.list_of_balls = []
+        
+    def assign_group(self, group):
+        self.group = group
+        
+    def draw_placeholders(self):
+        # this function makes the placeholders for the balls of each player
+        positions = [(RESOLUTION_W/2 +self.side*410, 100), (RESOLUTION_W/2 +self.side*370, 100), 
+                     (RESOLUTION_W/2 +self.side*330, 100), (RESOLUTION_W/2 +self.side*290, 100), 
+                     (RESOLUTION_W/2 +self.side*250, 100), (RESOLUTION_W/2 +self.side*210, 100), 
+                     (RESOLUTION_W/2 +self.side*170 , 100)]
+        noStroke()
+        for x, y in positions:
+            fill(0,0,0) 
+            ellipse(x, y, 30, 30)
+    def draw_avatars(self):
+        imageMode(CENTER)
+        image(avatar[self.id-1], RESOLUTION_W/2 +self.side*100, 70, 100, 100)
+        imageMode(CORNER)
+        
+        fill(0,0,0)
+        textSize(20)
+        # textFont(font)
+        textAlign(CENTER)
+        text("Player 1", RESOLUTION_W/2 + self.side*200, 50)
+    def display(self):
+        self.draw_placeholders()
+        self.draw_avatars()
 # Game Class
 class Game:
     def __init__(self):
         self.alive=0
         self.balls = []
-        self.balls.append(Ball(240+30,275+150,1))
-        self.balls.append(Ball(210+30,260+150,2))
-        self.balls.append(Ball(210+30,290+150,3))
-        self.balls.append(Ball(180+30,245+150,4))
-        self.balls.append(Ball(180+30,305+150,15))
-        self.balls.append(Ball(150+30,230+150,5))
-        self.balls.append(Ball(150+30,260+150,6))
-        self.balls.append(Ball(150+30,290+150,7))
-        self.balls.append(Ball(180+30,275+150,8))
-        self.balls.append(Ball(150+30,320+150,9))
-        self.balls.append(Ball(120+30,215+150,10))
-        self.balls.append(Ball(120+30,245+150,11))
-        self.balls.append(Ball(120+30,275+150,12))
-        # self.balls.append(Ball(120+30,305+150,13))
-        self.balls.append(Ball(120+30,335+150,14))
 
-        self.cue = CueBall(200,600,0)
+        for x, y, n in positions:
+            if n == 13: #<=================================================== FIX BALL 13
+                continue
+            self.balls.append(Ball(x + 30, y + 150, n))
+    
+        self.players = [Player("Player One",1),Player("Player Two",2)]
+        self.turn = self.pick_starting_player()
+        self.cue = CueBall(700,275+150,0)
         # seballs.append(cue)
         self.pockets =[]
 
         self.curx=0
         self.cury=0
+        
     def start(self):
         print("I AM ALIVE")
         self.alive=1
+        
+    def pick_starting_player(self):
+        turn = random.choice([0,1])
+        starting_player = self.players[turn]
+        # print(starting_player.name + "is starting the game and gets to break.")
+        return turn
+
+    def assign_groups_on_first_pocket(self, ball, current_player, opponent):
+        if not current_player.group and ball.type in ["solids", "stripes"]:
+            current_player.assign_group(ball.type)
+            opponent.assign_group("solids" if ball.type == "stripes" else "stripes")
+            
+        
     def drag(self,x,y):
         if self.alive:
             self.curx=x
             self.cury=y
+            
     def hit(self,x,y):
         if self.alive and (self.curx !=0 or self.cury!=0):
             distance = math.sqrt((x-self.curx)**2+(y-self.cury)**2)
@@ -309,32 +358,15 @@ class Game:
             print('aaa')
             print(distance,angle)
             self.cue.hit(distance/15,angle)
-        
-    def draw_avatars_and_names(self):
-        image(avatar1, RESOLUTION_W/2 - 150, 20, 100, 100)
-        image(avatar2, RESOLUTION_W/2 + 50, 20, 100, 100)
-        
-        fill(255,255,255)
-        textSize(20)
-        textAlign(CENTER)
-        text("Player 1", RESOLUTION_W/2 - 200, 50)
-        text("Player 2", RESOLUTION_W/2 + 200, 50)
-        
-    def drawBallPlaceholders(self):
-        positions = [(200, 50), (230, 50), (260, 50), (290, 50), (320, 50), 
-                     (350, 50), (380, 50), (410, 50), (440, 50), (470, 50), 
-                     (500, 50), (530, 50), (560, 50), (590, 50), (620, 50)]
-        noStroke()
-        for x, y in positions:
-            fill(255,255,255) 
-            # ellipse(x, y, 30, 30)
-    
+            
     # def setup():
         #maybe we can add calls to functions to randomely generate the plases of the balls ??
+        
     def check_collision(self,ball1,ball2):
         distance = math.sqrt((ball1.position.x-ball2.position.x)**2+(ball1.position.y-ball2.position.y)**2)
         if distance<=2*BALL_RADIUS:
             ball1.collide(ball2)
+            
     def update(self):
         for ball in self.balls:
             ball.update()
@@ -346,43 +378,8 @@ class Game:
                     continue
                 self.check_collision(ball1,ball2)
             self.check_collision(ball1,self.cue)
-        
-    def draw_avatars_and_names(self):
-        image(avatar1, RESOLUTION_W/2 - 150, 20, 100, 100)
-        image(avatar2, RESOLUTION_W/2 + 50, 20, 100, 100)
-        
-        fill(0,0,0)
-        textSize(20)
-        # textFont(font)
-        textAlign(CENTER)
-        text("Player 1", RESOLUTION_W/2 - 200, 50)
-        text("Player 2", RESOLUTION_W/2 + 200, 50)
-        
-    def drawBallPlaceholders(self):
-        # this function makes the placeholders for the balls of each player
-        positions = [(RESOLUTION_W/2 -410, 100), (RESOLUTION_W/2 -370, 100), 
-                     (RESOLUTION_W/2 -330, 100), (RESOLUTION_W/2 -290, 100), 
-                     (RESOLUTION_W/2 -250, 100), (RESOLUTION_W/2 - 210, 100), 
-                     (RESOLUTION_W/2 -170 , 100), (RESOLUTION_W/2 + 170, 100), 
-                     (RESOLUTION_W/2 + 210, 100), (RESOLUTION_W/2 +250, 100), 
-                      (RESOLUTION_W/2 +290, 100), (RESOLUTION_W/2 +330, 100), 
-                      (RESOLUTION_W/2 +370, 100), (RESOLUTION_W/2 +410, 100)]
-        noStroke()
-        for x, y in positions:
-            fill(0,0,0) 
-            ellipse(x, y, 30, 30)
-            
-    def pick_starting_player(players):
-        starting_player = random.choice(players)
-        # print(starting_player.name + "is starting the game and gets to break.")
-        return starting_player
-
-    def assign_groups_on_first_pocket(self, ball, current_player, opponent):
-        if not current_player.group and ball.type in ["solids", "stripes"]:
-            current_player.assign_group(ball.type)
-            opponent.assign_group("solids" if ball.type == "stripes" else "stripes")
-            
-    def draw(self):
+    
+    def display(self):
 
         if self.alive:
             print("TESTTT")
@@ -393,25 +390,17 @@ class Game:
             for ball in self.balls:
                 ball.display()
             self.cue.display()
-            self.draw_avatars_and_names()
-            self.drawBallPlaceholders()
-
-    def setup(self):
-        player1 = Player("Player 1")
-        player2 = Player("Player 2")
-        players = [player1, player2]
-        current_player = pick_starting_player(players)
-
-# Player class 
-class Player:
-    def __init__(self, name):
-        self.name = name 
-        self.group = None
-        self.list_of_balls = []
+            self.players[0].display()
+            self.players[1].display()
+        stroke(3)
+        line(110, 213, 462, 213)
+        line(525, 213, 884, 213)
+        line(110, 635, 462, 635)
+        line(525, 635, 884, 635)
+        line(82, 246, 82, 602)
+        line(917, 246, 917, 602)
         
-    def assign_group(self, group):
-        self.group = group
-
+###########################################################################
 class Button:
     def __init__(self, x, y, w, h, image, action):
         self.x = x
@@ -432,22 +421,6 @@ class Button:
             self.action()
 
 # Functions used in the homepage class
-def start_game():
-    global homepage
-    homepage.on_home_page = False
-    game.start()
-   
-def draw_game():
-    background(255, 255, 255)
-    game.draw()
-
-def quit_game():
-    exit()
-
-def toggle_sound():
-    print("Toggling sound")
-    sound_manager.toggle_sound()
-    
 # Homepage class
 class HomePage:
     def __init__(self):
@@ -458,17 +431,25 @@ class HomePage:
         self.setup_buttons()
         
     def setup_buttons(self):
-        self.buttons.append(Button(350, 300, 320, 110, play_button, start_game))
+        self.buttons.append(Button(350, 300, 320, 110, play_button, self.start_game))
         self.buttons.append(Button(450, 400, 100, 100, help_button, self.show_instructions))
-        self.buttons.append(Button(450, 500, 100, 100, sound_button, toggle_sound))
-        self.buttons.append(Button(350, 600, 320, 110, quit_button, quit_game))
+        self.buttons.append(Button(450, 500, 100, 100, sound_button, self.toggle_sound))
+        self.buttons.append(Button(350, 600, 320, 110, quit_button, self.quit_game))
 
     def draw_home_page(self):
         background(0)
         image(self.home_page_image, 0, 0, RESOLUTION_W, RESOLUTION_H, 211, 0, 1498, 1080)
         for button in self.buttons:
             button.display()
-
+    def quit_game(self):
+        exit()
+    def toggle_sound(self):
+        print("Toggling sound")
+    def start_game(self):
+        self.on_home_page = False
+        game.start()
+    def toggle_sound(self):
+        sound_manager.toggle_sound()
     def draw_instructions_page(self):
         background(150, 123, 182)
         textAlign(CENTER, CENTER)
@@ -508,7 +489,6 @@ Losing:
 - You pocket the 8-ball before clearing your group balls or you pocket the cue ball while pocketing the 8-ball.
 """
         text(rules, RESOLUTION_W / 2, RESOLUTION_H / 2)
-
         fill(0, 0, 0)
         rect(20, 10, 100, 50, 10)
         fill(255)
@@ -545,11 +525,8 @@ def setup():
     # mario_sound.play() 
     # mario_sound.loop()
     
-def mouseReleased():
-    game.hit(mouseX,mouseY)
-    
-    
 def draw():
+    background(255,255,255)
     global homepage
     if homepage.on_home_page:
         homepage.draw_home_page()
@@ -557,12 +534,15 @@ def draw():
         homepage.draw_instructions_page()
     elif not game.alive:
         print("ALIVING GAME")
-        start_game()
+        homepage.start_game()
     else:
-        draw_game()
+        game.display()
 def mousePressed():
     global homepage
     homepage.handle_mouse_press(mouseX, mouseY)
     game.drag(mouseX,mouseY)
         
+def mouseReleased():
+    game.hit(mouseX,mouseY)
+    
   
