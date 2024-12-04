@@ -3,7 +3,7 @@ import os
 import math 
 import random 
 import time
-# add_library('sound')
+add_library('sound')
 # add_library('gifAnimation')
 
 # ==========================================================
@@ -74,10 +74,10 @@ highlight = loadImage(PATH + "/media/" +"glow.png")
 
 # bgGIF = Gif(this, PATH + "/media/" + "bg_gif.gif")
 
-# collision_sound = SoundFile(this, PATH + "/media/" + "collision.mp3")
-# strong_collision_sound = SoundFile(this, PATH + "/media/" + "strong_collision.mp3")
-# pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
-# mario_sound = SoundFile(this, PATH + "/media/" + "mariokart.mp3")
+collision_sound = SoundFile(this, PATH + "/media/" + "collision.mp3")
+strong_collision_sound = SoundFile(this, PATH + "/media/" + "strong_collision.mp3")
+pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
+mario_sound = SoundFile(this, PATH + "/media/" + "mariokart.mp3")
 
 # font = loadFont(PATH + "/media/" +"font.ttf")
 
@@ -90,49 +90,45 @@ home_page_image = loadImage(PATH + "/media/" + "home_page.PNG")
 # ==========================================================
 # classes
 # Sounds Class:
-# class Sound:
-#     def __init__(self):
-#         self.collision_sound = collision_sound
-#         self.strong_collision_sound = strong_collision_sound
-#         self.pocket_sound = pocket_sound
-#         self.mario_sound = mario_sound
-#         self.is_sound_on = True
-#         self.volume_level = 1.0
-#         self.is_decreasing = True
+class Sound:
+    def __init__(self):
+        self.collision_sound = collision_sound
+        self.strong_collision_sound = strong_collision_sound
+        self.pocket_sound = pocket_sound
+        self.mario_sound = mario_sound
+        self.is_sound_on = True
+        self.volume_level = 1.0
+        self.is_decreasing = True
         
-#     def play_collision_sound(self, relative_speed):
-#         #this functions plays the collision sound when balls collide
-#         if relative_speed> 5: # we can change the speed value as needed
-#             self.strong_collision_sound.play()
-#         else:
-#             self.collision_sound.play()
+    def play_collision_sound(self):
+            self.strong_collision_sound.play()
     
-#     def play_pocket_sound(self):
-#         # this function plays the pocket sound when a ball is pocketed
-#         self.pocket_sound.play()
+    def play_pocket_sound(self):
+        # this function plays the pocket sound when a ball is pocketed
+        self.pocket_sound.play()
     
-#     def play_mario_sound(self):
-#         # this function plays the background music 
-#         self.mario_sound.play()
-#         self.mario_sound.loop()
-#         self.mario_sound.amp(self.volume_level)
+    def play_mario_sound(self):
+        # this function plays the background music 
+        self.mario_sound.play()
+        self.mario_sound.loop()
+        self.mario_sound.amp(self.volume_level)
         
-#     def toggle_sound(self):
-#         if not self.is_sound_on:            
-#             self.mario_sound.loop()
-#             self.is_sound_on = True             
-#         else:
-#             if self.is_decreasing:
-#                 # Decrease volume if sound is on
-#                 self.volume_level = max(0.0, self.volume_level - 0.1)  # Cap volume at 0.0
-#                 if self.volume_level == 0.0:
-#                     self.is_decreasing = False
-#             else:
-#                 self.volume_level = min(1.0, self.volume_level + 0.1)
-#                 if self.volume_level == 1.0:
-#                     self.is_decreasing = True       
+    def toggle_sound(self):
+        if not self.is_sound_on:            
+            self.mario_sound.loop()
+            self.is_sound_on = True             
+        else:
+            if self.is_decreasing:
+                # Decrease volume if sound is on
+                self.volume_level = max(0.0, self.volume_level - 0.1)  # Cap volume at 0.0
+                if self.volume_level == 0.0:
+                    self.is_decreasing = False
+            else:
+                self.volume_level = min(1.0, self.volume_level + 0.1)
+                if self.volume_level == 1.0:
+                    self.is_decreasing = True       
 
-#             self.mario_sound.amp(self.volume_level)
+            self.mario_sound.amp(self.volume_level)
         
 #Point Class:
 class Point():
@@ -190,6 +186,8 @@ class Ball:
         
     def collide(self, other):
         game.has_collided=1
+        if self.velocity.x>1 or self.velocity.y>1:
+            sound_manager.play_collision_sound()
         if game.first_collision==None:
             game.first_collision=other.type
         dx = self.position.x - other.position.x
@@ -383,7 +381,9 @@ class Game:
         pass
     def game_over(self,winning_player): #<============================ THIS THIS
         print('I DIED')
+        textSize(128)
         text("Player "+str(self.players[winning_player].id)+" Wins.", RESOLUTION_W / 2, RESOLUTION_H / 2)
+        
     def pick_starting_player(self):
         turn = random.choice([0,1])
         self.starting_player = self.players[turn]
@@ -418,7 +418,7 @@ class Game:
         if self.alive and (self.curx !=0 or self.cury!=0) and not self.in_play:
             self.in_play=1
             distance = math.sqrt((x-self.curx)**2+(y-self.cury)**2)
-            distance/=15
+            distance/=10
             angle = self.cue.track(distance)
             print('RELEASED')
             self.cue.hit(distance,angle)
@@ -625,13 +625,13 @@ game = Game()
 
 
 homepage = HomePage()
-# sound_manager = Sound()
+sound_manager = Sound()
 
 def setup():
     size(RESOLUTION_W, RESOLUTION_H)
-    # sound_manager.play_mario_sound()
+    sound_manager.play_mario_sound()
     # game.setup()
-    # pocket_sound.play()  #remove this, its just for testing
+    # # pocket_sound.play()  #remove this, its just for testing
     # mario_sound.play() 
     # mario_sound.loop()
     
