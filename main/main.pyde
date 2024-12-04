@@ -337,8 +337,8 @@ class Game:
         self.balls = []
 
         for x, y, n in positions:
-            if n == 13: #<=================================================== FIX BALL 13
-                continue
+            # if n == 13: #<=================================================== FIX BALL 13
+            #     continue
             self.balls.append(Ball(x + 30, y + 150, n))
     
         self.players = [Player("Player One",1),Player("Player Two",2)]
