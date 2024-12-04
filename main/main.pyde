@@ -178,7 +178,7 @@ class Ball:
         if v == 0:
             return
         theta = acos(abs(self.velocity.x)/v) if v!=0 else 0
-        v = max(0,v*(1-FRICTION))
+        v = max(0,v*(1-FRICTION))b
         if abs(v) < 0.01:
             v = 0
         self.velocity.x = v*cos(theta)*(-1 if self.velocity.x<0 else 1)
