@@ -45,6 +45,7 @@ positions = [
     (120, 275, 12), (120, 305, 13), (120, 335, 14)
 ]
 FRICTION = 0.02
+is_game_over = False
 
 # ==========================================================
 # loading the media
@@ -178,7 +179,7 @@ class Ball:
         if v == 0:
             return
         theta = acos(abs(self.velocity.x)/v) if v!=0 else 0
-        v = max(0,v*(1-FRICTION))b
+        v = max(0,v*(1-FRICTION))
         if abs(v) < 0.01:
             v = 0
         self.velocity.x = v*cos(theta)*(-1 if self.velocity.x<0 else 1)
@@ -379,10 +380,12 @@ class Game:
         self.alive=1
     def ball_in_hand(self):
         pass
-    def game_over(self,winning_player): #<============================ THIS THIS
+    def game_over(self): #<============================ THIS THIS
+        global is_game_over
+        is_game_over=True
         print('I DIED')
         textSize(128)
-        text("Player "+str(self.players[winning_player].id)+" Wins.", RESOLUTION_W / 2, RESOLUTION_H / 2)
+        gameoverpage.draw_gameover_page()
         
     def pick_starting_player(self):
         turn = random.choice([0,1])
@@ -455,7 +458,8 @@ class Game:
             self.game_over(1-self.turn)
         elif self.cue.is_pocketed:
             print("CUE IS POCKETED FOUL")
-            self.game_over(1-self.turn)
+            # self.game_over(1-self.turn) why is it 1-self.turn??
+            self.game_over()
             self.switch_turns()
         elif self.has_collided==0:
             print("NO HIT FOUL")
@@ -620,18 +624,60 @@ Losing:
         self.on_home_page = False
         self.on_instructions_page = True
                 
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+class GameOverPage:
+    def __init__(self):
+        self.buttons = []
+        self.game_over_page_image = home_page_image
+        self.on_game_over_page = True
+        self.setup_buttons()
+        
+    def setup_buttons(self):
+        self.buttons.append(Button(350, (RESOLUTION_H / 2) +100, 320, 110, play_button, self.restart_game))
+        self.buttons.append(Button(350, 600, 320, 110, quit_button, self.quit_game))
+
+    def draw_gameover_page(self):
+        background(0)
+        image(self.game_over_page_image, 0, 0, RESOLUTION_W, RESOLUTION_H, 211, 0, 1498, 1080)
+        for button in self.buttons:
+            button.display()
+        textSize(50)
+        text("Game Over!", RESOLUTION_W / 2, (RESOLUTION_H / 2) -70)
+        text("Player "+str(game.players[game.turn].id)+" Wins! Yayy!!", RESOLUTION_W / 2, RESOLUTION_H / 2)
+        text("Play again?", RESOLUTION_W / 2, (RESOLUTION_H / 2) +70)
+        
+    def quit_game(self):
+        exit()
+        is_game_over = False
+
+        
+    def restart_game(self):
+        global is_game_over, game, homepage
+        is_game_over = False
+        game=Game()
+        homepage= HomePage()
+        sound_manager = Sound()
+
+    def handle_mouse_press(self, mouse_x, mouse_y):
+        for button in self.buttons:
+            if button.is_hovered(mouse_x, mouse_y):
+                button.handle_click()
+
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+        
+        
+        
 # ==========================================================
 game = Game()
-
-
 homepage = HomePage()
+gameoverpage = GameOverPage()
 sound_manager = Sound()
 
 def setup():
     size(RESOLUTION_W, RESOLUTION_H)
     sound_manager.play_mario_sound()
     # game.setup()
-    # # pocket_sound.play()  #remove this, its just for testing
     # mario_sound.play() 
     # mario_sound.loop()
     
@@ -645,16 +691,20 @@ def draw():
     elif not game.alive:
         print("ALIVING GAME")
         homepage.start_game()
+    elif is_game_over:
+        gameoverpage.draw_gameover_page()
     else:
         game.display()
 def mousePressed():
-    global homepage
+    global homepage, gameoverpage, is_game_over
     game.drag(mouseX,mouseY)
-    homepage.handle_mouse_press(mouseX, mouseY)
+    if is_game_over:
+        gameoverpage.handle_mouse_press(mouseX, mouseY)
+    else:
+        homepage.handle_mouse_press(mouseX, mouseY)
         
 def mouseReleased():
     game.hit(mouseX,mouseY)
-
-
+    
     
   
