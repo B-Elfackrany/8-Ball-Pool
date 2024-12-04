@@ -289,6 +289,8 @@ class CueBall(Ball):
             stroke(3)
             # strokeFill(220, 220, 220)
             line(100*cos(angle)+self.position.x,100*sin(angle)+self.position.y,200*cos(angle)+self.position.x,200*sin(angle)+self.position.y)
+            game.complete_break()
+            game.next_turn()
         return angle
         
     # def update(self):
@@ -306,7 +308,6 @@ class Player:
     def assign(self, group):
         print("player "+str(self.id)+" was assigned "+group)
         self.group = group
-
     def draw_placeholders(self):
         for ball in game.balls:
             if ball.type==self.group and not ball.is_pocketed:
@@ -346,17 +347,20 @@ class Player:
             imageMode(CORNER)
         self.draw_placeholders()
         self.draw_avatars()
+
 # Game Class
 class Game:
     def __init__(self):
         self.alive=0
         self.balls = []
         for x, y, n in positions:
-            if n == 13: #<=================================================== FIX BALL 13
-                continue
+            # if n == 13: #<=================================================== FIX BALL 13
+            #     continue
             self.balls.append(Ball(x + 30, y + 150, n))
     
-        self.players = [Player("Player One",1),Player("Player Two",2)]
+        self.players = [Player("Player 1",1),Player("Player 2",2)]
+        self.starting_player = None
+        self.game_state = "SHOW_STARTING_PLAYER"
         self.turn = self.pick_starting_player()
         self.cue = CueBall(700,275+150,0)
         # seballs.append(cue)
@@ -609,7 +613,12 @@ Losing:
                 
 # ==========================================================
 game = Game()
-# player = Player()
+player1 = Player("Player 1", 1)
+player1.assign_group("solids")
+player2 = Player("Player 2", 2)
+player2.assign_group("stripes")
+
+
 homepage = HomePage()
 # sound_manager = Sound()
 
@@ -640,5 +649,7 @@ def mousePressed():
         
 def mouseReleased():
     game.hit(mouseX,mouseY)
+
+
     
   
