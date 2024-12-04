@@ -341,7 +341,7 @@ class Game:
             #     continue
             self.balls.append(Ball(x + 30, y + 150, n))
     
-        self.players = [Player("Player One",1),Player("Player Two",2)]
+        self.players = [Player("Player 1",1),Player("Player 2",2)]
         self.starting_player = None
         self.game_state = "SHOW_STARTING_PLAYER"
         self.turn = self.pick_starting_player()
