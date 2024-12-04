@@ -2,6 +2,7 @@
 import os 
 import math 
 import random 
+import time
 # add_library('sound')
 # add_library('gifAnimation')
 
@@ -68,6 +69,8 @@ ball_14 = loadImage(PATH + "/media/" +"ball_14.png")
 ball_15 = loadImage(PATH + "/media/" +"ball_15.png")
 
 avatar = [loadImage(PATH + "/media/" +"avatar1.png"),loadImage(PATH + "/media/" +"avatar2.png")]
+highlight = loadImage(PATH + "/media/" +"glow.png")
+
 
 # bgGIF = Gif(this, PATH + "/media/" + "bg_gif.gif")
 
@@ -186,6 +189,9 @@ class Ball:
         self.velocity.y = v*sin(theta)*(-1 if self.velocity.y<0 else 1)
         
     def collide(self, other):
+        game.has_collided=1
+        if game.first_collision==None:
+            game.first_collision=other.type
         dx = self.position.x - other.position.x
         dy = self.position.y - other.position.y
         distance = math.sqrt(dx**2 + dy**2)
@@ -240,10 +246,12 @@ class Ball:
             self.position.move(self.velocity)
             self.apply_friction()
             self.check_collision()
+        else:
+            self.velocity.x,self.velocity.y=0,0
         
     def display(self):
-        if self.ID==0:
-            print("I AM HERE MFERS")
+        # if self.ID==0:
+            # print("I AM HERE MFERS")
         if not self.is_pocketed:
             imageMode(CENTER)
             image(self.img,self.position.x,self.position.y)
@@ -252,7 +260,6 @@ class Ball:
 class CueBall(Ball):
     def __init__(self,x,y,ID):
         Ball.__init__(self,x,y,ID)
-        
     def track(self,distance):
         x,y=mouseX-self.position.x,mouseY-self.position.y
         angle = math.atan(float(y) / (x)) if x!=0 else PI/2
@@ -265,7 +272,7 @@ class CueBall(Ball):
         distance+=100
         tracker = Point(distance*-cos(angle)+self.position.x,distance*-sin(angle)+self.position.y)
         # print(tracker.x,tracker.y)
-        if(self.velocity.x==0 and self.velocity.y==0):
+        if(game.is_static()):
             fill(255,0,0)
             circle(tracker.x,tracker.y,5)
             pushMatrix()
@@ -294,11 +301,16 @@ class Player:
         self.side = -1 if self.id == 1 else 1
         self.group = None
         self.list_of_balls = []
+        self.is_turn=0
         
-    def assign_group(self, group):
+    def assign(self, group):
+        print("player "+str(self.id)+" was assigned "+group)
         self.group = group
-        
+
     def draw_placeholders(self):
+        for ball in game.balls:
+            if ball.type==self.group and not ball.is_pocketed:
+                self.list_of_balls.append(ball)
         # this function makes the placeholders for the balls of each player
         positions = [(RESOLUTION_W/2 +self.side*410, 100), (RESOLUTION_W/2 +self.side*370, 100), 
                      (RESOLUTION_W/2 +self.side*330, 100), (RESOLUTION_W/2 +self.side*290, 100), 
@@ -307,18 +319,31 @@ class Player:
         noStroke()
         for x, y in positions:
             fill(0,0,0) 
-            ellipse(x, y, 30, 30)
+            ellipse(x, y, 35, 35)
+            if(len(self.list_of_balls)):
+                ball = self.list_of_balls.pop()
+                imageMode(CENTER)
+                image(ball.img,x,y,30,30)
+                imageMode(CORNER)
     def draw_avatars(self):
         imageMode(CENTER)
         image(avatar[self.id-1], RESOLUTION_W/2 +self.side*100, 70, 100, 100)
         imageMode(CORNER)
         
         fill(0,0,0)
+        if self.is_turn:
+            fill(15, 30, 120)
         textSize(20)
         # textFont(font)
         textAlign(CENTER)
         text("Player "+str(self.id), RESOLUTION_W/2 + self.side*200, 50)
+        
     def display(self):
+        if self.is_turn:
+            # print("displaying highlights")
+            imageMode(CENTER)
+            image(highlight, RESOLUTION_W/2 +self.side*100, 70, 200, 200)
+            imageMode(CORNER)
         self.draw_placeholders()
         self.draw_avatars()
 # Game Class
@@ -326,7 +351,6 @@ class Game:
     def __init__(self):
         self.alive=0
         self.balls = []
-
         for x, y, n in positions:
             if n == 13: #<=================================================== FIX BALL 13
                 continue
@@ -340,6 +364,10 @@ class Game:
         self.in_hit=0
         self.curx=0
         self.cury=0
+        self.in_play=0
+        self.is_break=1
+        self.has_collided=0
+        self.first_collision=None
         
     def start(self):
         print("I AM ALIVE")
@@ -348,12 +376,15 @@ class Game:
     def pick_starting_player(self):
         turn = random.choice([0,1])
         self.starting_player = self.players[turn]
-        # print(starting_player.name + "is starting the game and gets to break.")
         self.starting_player_text = str(self.starting_player.name) + " is starting the game and gets to break <3"
-        
-        # text(str(self.starting_player.name) + " is starting the game and gets to break.", RESOLUTION_W / 2, 180)
+        self.players[turn].is_turn=1
         return turn
-
+    
+    def switch_turns(self):
+        self.players[self.turn].is_turn=0
+        self.turn=1-self.turn
+        self.players[self.turn].is_turn=1
+        
     def assign_groups_on_first_pocket(self, ball, current_player, opponent):
         if not current_player.group and ball.type in ["solids", "stripes"]:
             current_player.assign_group(ball.type)
@@ -361,45 +392,93 @@ class Game:
         
     def drag(self,x,y):
         if self.alive:
+            # print("555")
             self.in_hit=1
             self.curx=x
             self.cury=y
             
+    def is_static(self):
+        flag=self.cue.velocity.x==0 and self.cue.velocity.y==0
+        for ball in self.balls:
+            if not ball.is_pocketed:
+                flag &=ball.velocity.x==0 and ball.velocity.y==0
+        return flag
     def hit(self,x,y):
-        if self.alive and (self.curx !=0 or self.cury!=0):
+        if self.alive and (self.curx !=0 or self.cury!=0) and not self.in_play:
+            self.in_play=1
             distance = math.sqrt((x-self.curx)**2+(y-self.cury)**2)
             distance/=15
             angle = self.cue.track(distance)
             print('RELEASED')
             self.cue.hit(distance,angle)
             self.in_hit=0
+            self.in_play=1
             
     def check_collision(self,ball1,ball2):
         distance = math.sqrt((ball1.position.x-ball2.position.x)**2+(ball1.position.y-ball2.position.y)**2)
         if distance<=2*BALL_RADIUS:
             ball1.collide(ball2)
-            
+    def evaluate_turn(self):
+        print("TURN ENDED")
+        pocketed_balls=[]
+        for ball in self.balls:
+            if ball.is_pocketed:
+                pocketed_balls.append(ball)
+                self.balls.remove(ball)
+        pocketed = {'stripes':0,'solid':0,'8-ball':0}
+        for ball in pocketed_balls:
+            pocketed[ball.type]=1
+                
+        print(pocketed['stripes'], pocketed['solid'])
+
+        if not self.is_break and pocketed['stripes']+pocketed['solid']==1 and self.players[self.turn].group==None:
+            if pocketed['solid']:
+                self.players[self.turn].assign("solid")
+                self.players[1-self.turn].assign("stripes")
+            else:
+                self.players[1-self.turn].assign("solid")
+                self.players[self.turn].assign("stripes") 
+                
+        if pocketed['8-ball']:
+            print("8-ball IS POCKETED FOUL - (GAME OVER)")
+        elif self.cue.is_pocketed:
+            print("CUE IS POCKETED FOUL")
+            self.switch_turns()
+        elif self.has_collided==0:
+            print("NO HIT FOUL")
+            self.switch_turns()
+        elif self.first_collision!=self.players[self.turn].group and self.players[self.turn].group!=None:
+            print("OPPONENT BALL HIT FIRST FOUL") 
+            self.switch_turns()
+        elif ((len(pocketed_balls)==0) or (self.players[self.turn].group !=None and not pocketed[self.players[self.turn].group])):
+            self.switch_turns()
+        self.is_break=0
+        self.has_collided=0
+        self.first_collision=None
     def update(self):
         for ball in self.balls:
             ball.update()
-        print("UPDATING GAME")
+        # print("UPDATING GAME")
         self.cue.update()
         for ball1 in self.balls:
             for ball2 in self.balls:
                 if (ball1.ID == ball2.ID):
                     continue
                 self.check_collision(ball1,ball2)
-            self.check_collision(ball1,self.cue)
+            self.check_collision(self.cue,ball1)
+        if(self.in_play and self.is_static()):
+            self.in_play=0
+            self.evaluate_turn()
     
     def display(self):
         if self.alive:
-            print("TESTTT")
+            # print("TESTTT")
             image(table, 20, 150, RESOLUTION_W - 40, RESOLUTION_H - 250)
             distance = math.sqrt((mouseX-self.curx)**2+(mouseY-self.cury)**2)
             distance/=10
             self.cue.track(distance if self.in_hit else 0)
             self.update()
-            print(self.cue.velocity.x,self.cue.velocity.y)
+            # print(self.cue.velocity.x,self.cue.velocity.y)
             for ball in self.balls:
                 ball.display()
             self.cue.display()
@@ -417,6 +496,7 @@ class Game:
         line(82, 246, 82, 602)
         line(917, 246, 917, 602)
         
+#-------------------------------------------------------------------------------------
 class Button:
     def __init__(self, x, y, w, h, image, action):
         self.x = x
@@ -435,6 +515,7 @@ class Button:
     def handle_click(self):
         if self.action:
             self.action()
+    
 
 # Functions used in the homepage class
 # Homepage class
@@ -554,8 +635,8 @@ def draw():
         game.display()
 def mousePressed():
     global homepage
-    homepage.handle_mouse_press(mouseX, mouseY)
     game.drag(mouseX,mouseY)
+    homepage.handle_mouse_press(mouseX, mouseY)
         
 def mouseReleased():
     game.hit(mouseX,mouseY)
