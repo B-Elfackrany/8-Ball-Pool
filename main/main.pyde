@@ -282,6 +282,8 @@ class CueBall(Ball):
             stroke(3)
             # strokeFill(220, 220, 220)
             line(100*cos(angle)+self.position.x,100*sin(angle)+self.position.y,200*cos(angle)+self.position.x,200*sin(angle)+self.position.y)
+            game.complete_break()
+            game.next_turn()
         return angle
         
     # def update(self):
@@ -297,6 +299,7 @@ class Player:
         
     def assign_group(self, group):
         self.group = group
+        self.list_of_balls = [ball for ball in game.balls if ball.type == group]
         
     def draw_placeholders(self):
         # this function makes the placeholders for the balls of each player
@@ -308,6 +311,11 @@ class Player:
         for x, y in positions:
             fill(0,0,0) 
             ellipse(x, y, 30, 30)
+            for ball in self.list_of_balls:
+                if not ball.is_pocketed:
+                    imageMode(CENTER)
+                    image(ball_+str(ball.ID), x, y, 30, 30)
+                    
     def draw_avatars(self):
         imageMode(CENTER)
         image(avatar[self.id-1], RESOLUTION_W/2 +self.side*100, 70, 100, 100)
@@ -321,6 +329,7 @@ class Player:
     def display(self):
         self.draw_placeholders()
         self.draw_avatars()
+
 # Game Class
 class Game:
     def __init__(self):
@@ -333,6 +342,8 @@ class Game:
             self.balls.append(Ball(x + 30, y + 150, n))
     
         self.players = [Player("Player One",1),Player("Player Two",2)]
+        self.starting_player = None
+        self.game_state = "SHOW_STARTING_PLAYER"
         self.turn = self.pick_starting_player()
         self.cue = CueBall(700,275+150,0)
         # seballs.append(cue)
@@ -348,12 +359,18 @@ class Game:
     def pick_starting_player(self):
         turn = random.choice([0,1])
         self.starting_player = self.players[turn]
+        self.game_state = "SHOW_STARTING_PLAYER"
         # print(starting_player.name + "is starting the game and gets to break.")
         self.starting_player_text = str(self.starting_player.name) + " is starting the game and gets to break <3"
         
         # text(str(self.starting_player.name) + " is starting the game and gets to break.", RESOLUTION_W / 2, 180)
-        return turn
-
+        return self.starting_player
+    
+    def next_turn(self):
+        current_index = self.players.index(self.turn)
+        next_index = (current_index + 1) % len(self.players)
+        self.turn = self.players[next_index]
+        
     def assign_groups_on_first_pocket(self, ball, current_player, opponent):
         if not current_player.group and ball.type in ["solids", "stripes"]:
             current_player.assign_group(ball.type)
@@ -416,6 +433,23 @@ class Game:
         line(525, 635, 884, 635)
         line(82, 246, 82, 602)
         line(917, 246, 917, 602)
+        
+    def complete_break(self):
+        self.game_state = "SHOW_PLAYER_TURN"
+
+    def draw(self):
+        if self.game_state == "SHOW_STARTING_PLAYER":
+            fill(255,255,255)
+            textAlign(CENTER)
+            text(str(self.starting_player_text), RESOLUTION_W/2, 180)
+
+        elif self.game_state == "BREAK_IN_PROGRESS":
+            pass
+
+        elif self.game_state == "SHOW_PLAYER_TURN":
+            fill(255,255,255)
+            textAlign(CENTER)
+            text("It's" + str(self.current_turn.name) +"'s turn!", RESOLUTION_W / 2, 180)
         
 class Button:
     def __init__(self, x, y, w, h, image, action):
@@ -528,7 +562,12 @@ Losing:
                 
 # ==========================================================
 game = Game()
-# player = Player()
+player1 = Player("Player 1", 1)
+player1.assign_group("solids")
+player2 = Player("Player 2", 2)
+player2.assign_group("stripes")
+
+
 homepage = HomePage()
 # sound_manager = Sound()
 
@@ -556,8 +595,14 @@ def mousePressed():
     global homepage
     homepage.handle_mouse_press(mouseX, mouseY)
     game.drag(mouseX,mouseY)
+    if game.game_state == "SHOW_STARTING_PLAYER":
+        game.game_state = "BREAK_IN_PROGRESS"
+        
+
         
 def mouseReleased():
     game.hit(mouseX,mouseY)
+
+
     
   
