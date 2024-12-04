@@ -289,8 +289,8 @@ class CueBall(Ball):
             stroke(3)
             # strokeFill(220, 220, 220)
             line(100*cos(angle)+self.position.x,100*sin(angle)+self.position.y,200*cos(angle)+self.position.x,200*sin(angle)+self.position.y)
-            game.complete_break()
-            game.next_turn()
+            # game.complete_break()
+            # game.next_turn()
         return angle
         
     # def update(self):
@@ -309,9 +309,6 @@ class Player:
         print("player "+str(self.id)+" was assigned "+group)
         self.group = group
     def draw_placeholders(self):
-        for ball in game.balls:
-            if ball.type==self.group and not ball.is_pocketed:
-                self.list_of_balls.append(ball)
         # this function makes the placeholders for the balls of each player
         positions = [(RESOLUTION_W/2 +self.side*410, 100), (RESOLUTION_W/2 +self.side*370, 100), 
                      (RESOLUTION_W/2 +self.side*330, 100), (RESOLUTION_W/2 +self.side*290, 100), 
@@ -338,8 +335,14 @@ class Player:
         # textFont(font)
         textAlign(CENTER)
         text("Player "+str(self.id), RESOLUTION_W/2 + self.side*200, 50)
-        
+    def update(self):
+        for ball in game.balls:
+            if ball.type==self.group and not ball.is_pocketed:
+                self.list_of_balls.append(ball)
+        if not self.list_of_balls and self.group!=None:
+            self.group = '8-ball'
     def display(self):
+        self.update()
         if self.is_turn:
             # print("displaying highlights")
             imageMode(CENTER)
@@ -376,7 +379,11 @@ class Game:
     def start(self):
         print("I AM ALIVE")
         self.alive=1
-        
+    def ball_in_hand(self):
+        pass
+    def game_over(self,winning_player): #<============================ THIS THIS
+        print('I DIED')
+        text("Player "+str(self.players[winning_player].id)+" Wins.", RESOLUTION_W / 2, RESOLUTION_H / 2)
     def pick_starting_player(self):
         turn = random.choice([0,1])
         self.starting_player = self.players[turn]
@@ -445,8 +452,10 @@ class Game:
                 
         if pocketed['8-ball']:
             print("8-ball IS POCKETED FOUL - (GAME OVER)")
+            self.game_over(1-self.turn)
         elif self.cue.is_pocketed:
             print("CUE IS POCKETED FOUL")
+            self.game_over(1-self.turn)
             self.switch_turns()
         elif self.has_collided==0:
             print("NO HIT FOUL")
@@ -613,10 +622,6 @@ Losing:
                 
 # ==========================================================
 game = Game()
-player1 = Player("Player 1", 1)
-player1.assign_group("solids")
-player2 = Player("Player 2", 2)
-player2.assign_group("stripes")
 
 
 homepage = HomePage()
