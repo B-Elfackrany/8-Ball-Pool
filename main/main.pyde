@@ -71,6 +71,7 @@ ball_15 = loadImage(PATH + "/media/" +"ball_15.png")
 
 avatar = [loadImage(PATH + "/media/" +"avatar1.png"),loadImage(PATH + "/media/" +"avatar2.png")]
 highlight = loadImage(PATH + "/media/" +"glow.png")
+text_box = loadImage(PATH + "/media/" + "text_box.png")
 
 
 # bgGIF = Gif(this, PATH + "/media/" + "bg_gif.gif")
@@ -87,6 +88,7 @@ help_button = loadImage(PATH + "/media/" + "help_button.png")
 quit_button = loadImage(PATH + "/media/" + "quit_button.png")
 sound_button = loadImage(PATH + "/media/" + "sound_button.png")
 home_page_image = loadImage(PATH + "/media/" + "home_page.PNG")
+main_bg = loadImage(PATH + "/media/" + "main_bg.png")
 
 # ==========================================================
 # classes
@@ -332,6 +334,7 @@ class Player:
             fill(15, 30, 120)
         textSize(20)
         # textFont(font)
+        fill(255)
         textAlign(CENTER)
         text("Player "+str(self.id), RESOLUTION_W/2 + self.side*200, 50)
     def update(self):
@@ -490,6 +493,7 @@ class Game:
     def display(self):
         if self.alive:
             # print("TESTTT")
+            image(main_bg, 0, 0, RESOLUTION_W, RESOLUTION_H)
             image(table, 20, 150, RESOLUTION_W - 40, RESOLUTION_H - 250)
             distance = math.sqrt((mouseX-self.curx)**2+(mouseY-self.cury)**2)
             distance/=10
