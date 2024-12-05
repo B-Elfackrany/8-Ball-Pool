@@ -3,7 +3,7 @@ import os
 import math 
 import random 
 import time
-# add_library('sound')
+add_library('sound')
 # add_library('gifAnimation')
 
 # ==========================================================
@@ -45,6 +45,7 @@ positions = [
     (120, 275, 12), (120, 305, 13), (120, 335, 14)
 ]
 FRICTION = 0.02
+is_game_over = False
 
 # ==========================================================
 # loading the media
@@ -70,14 +71,15 @@ ball_15 = loadImage(PATH + "/media/" +"ball_15.png")
 
 avatar = [loadImage(PATH + "/media/" +"avatar1.png"),loadImage(PATH + "/media/" +"avatar2.png")]
 highlight = loadImage(PATH + "/media/" +"glow.png")
+text_box = loadImage(PATH + "/media/" + "text_box.png")
 
 
 # bgGIF = Gif(this, PATH + "/media/" + "bg_gif.gif")
 
-# collision_sound = SoundFile(this, PATH + "/media/" + "collision.mp3")
-# strong_collision_sound = SoundFile(this, PATH + "/media/" + "strong_collision.mp3")
-# pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
-# mario_sound = SoundFile(this, PATH + "/media/" + "mariokart.mp3")
+collision_sound = SoundFile(this, PATH + "/media/" + "collision.mp3")
+strong_collision_sound = SoundFile(this, PATH + "/media/" + "strong_collision.mp3")
+pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
+mario_sound = SoundFile(this, PATH + "/media/" + "mariokart.mp3")
 
 # font = loadFont(PATH + "/media/" +"font.ttf")
 
@@ -86,53 +88,50 @@ help_button = loadImage(PATH + "/media/" + "help_button.png")
 quit_button = loadImage(PATH + "/media/" + "quit_button.png")
 sound_button = loadImage(PATH + "/media/" + "sound_button.png")
 home_page_image = loadImage(PATH + "/media/" + "home_page.PNG")
+main_bg = loadImage(PATH + "/media/" + "main_bg.png")
 
 # ==========================================================
 # classes
 # Sounds Class:
-# class Sound:
-#     def __init__(self):
-#         self.collision_sound = collision_sound
-#         self.strong_collision_sound = strong_collision_sound
-#         self.pocket_sound = pocket_sound
-#         self.mario_sound = mario_sound
-#         self.is_sound_on = True
-#         self.volume_level = 1.0
-#         self.is_decreasing = True
+class Sound:
+    def __init__(self):
+        self.collision_sound = collision_sound
+        self.strong_collision_sound = strong_collision_sound
+        self.pocket_sound = pocket_sound
+        self.mario_sound = mario_sound
+        self.is_sound_on = True
+        self.volume_level = 1.0
+        self.is_decreasing = True
         
-#     def play_collision_sound(self, relative_speed):
-#         #this functions plays the collision sound when balls collide
-#         if relative_speed> 5: # we can change the speed value as needed
-#             self.strong_collision_sound.play()
-#         else:
-#             self.collision_sound.play()
+    def play_collision_sound(self):
+            self.strong_collision_sound.play()
     
-#     def play_pocket_sound(self):
-#         # this function plays the pocket sound when a ball is pocketed
-#         self.pocket_sound.play()
+    def play_pocket_sound(self):
+        # this function plays the pocket sound when a ball is pocketed
+        self.pocket_sound.play()
     
-#     def play_mario_sound(self):
-#         # this function plays the background music 
-#         self.mario_sound.play()
-#         self.mario_sound.loop()
-#         self.mario_sound.amp(self.volume_level)
+    def play_mario_sound(self):
+        # this function plays the background music 
+        self.mario_sound.play()
+        self.mario_sound.loop()
+        self.mario_sound.amp(self.volume_level)
         
-#     def toggle_sound(self):
-#         if not self.is_sound_on:            
-#             self.mario_sound.loop()
-#             self.is_sound_on = True             
-#         else:
-#             if self.is_decreasing:
-#                 # Decrease volume if sound is on
-#                 self.volume_level = max(0.0, self.volume_level - 0.1)  # Cap volume at 0.0
-#                 if self.volume_level == 0.0:
-#                     self.is_decreasing = False
-#             else:
-#                 self.volume_level = min(1.0, self.volume_level + 0.1)
-#                 if self.volume_level == 1.0:
-#                     self.is_decreasing = True       
+    def toggle_sound(self):
+        if not self.is_sound_on:            
+            self.mario_sound.loop()
+            self.is_sound_on = True             
+        else:
+            if self.is_decreasing:
+                # Decrease volume if sound is on
+                self.volume_level = max(0.0, self.volume_level - 0.1)  # Cap volume at 0.0
+                if self.volume_level == 0.0:
+                    self.is_decreasing = False
+            else:
+                self.volume_level = min(1.0, self.volume_level + 0.1)
+                if self.volume_level == 1.0:
+                    self.is_decreasing = True       
 
-#             self.mario_sound.amp(self.volume_level)
+            self.mario_sound.amp(self.volume_level)
         
 #Point Class:
 class Point():
@@ -190,6 +189,8 @@ class Ball:
         
     def collide(self, other):
         game.has_collided=1
+        if self.velocity.x>1 or self.velocity.y>1:
+            sound_manager.play_collision_sound()
         if game.first_collision==None:
             game.first_collision=other.type
         dx = self.position.x - other.position.x
@@ -355,6 +356,7 @@ class Player:
             fill(15, 30, 120)
         textSize(20)
         # textFont(font)
+        fill(255)
         textAlign(CENTER)
         text("Player "+str(self.id), RESOLUTION_W/2 + self.side*200, 50)
     def update(self):
@@ -405,9 +407,14 @@ class Game:
     def ball_in_hand(self):
         self.cue.in_hand()
         # self.cue = CueBall(700,275+150,0)
-    def game_over(self,winning_player): #<============================ THIS THIS
+
+    def game_over(self): #<============================ THIS THIS
+        global is_game_over
+        is_game_over=True
         print('I DIED')
-        text("Player "+str(self.players[winning_player].id)+" Wins.", RESOLUTION_W / 2, RESOLUTION_H / 2)
+        textSize(128)
+        gameoverpage.draw_gameover_page()
+        
     def pick_starting_player(self):
         turn = random.choice([0,1])
         self.starting_player = self.players[turn]
@@ -477,7 +484,7 @@ class Game:
                 
         if pocketed['8-ball']:
             print("8-ball IS POCKETED FOUL - (GAME OVER)")
-            self.game_over(1-self.turn)
+            self.game_over()
         elif self.cue.is_pocketed:
             print("CUE IS POCKETED FOUL")
             self.switch_turns()
@@ -493,7 +500,7 @@ class Game:
         elif ((len(pocketed_balls)==0) or (self.players[self.turn].group !=None and not pocketed[self.players[self.turn].group])):
             self.switch_turns()
         elif not self.players[self.turn].list_of_balls and self.players[self.turn].group!=None:
-            self.game_over(self.turn)
+            self.game_over()
             
         if not self.is_break and pocketed['stripes']+pocketed['solid']==1 and self.players[self.turn].group==None:
             if pocketed['solid']:
@@ -525,6 +532,7 @@ class Game:
     def display(self):
         if self.alive:
             # print("TESTTT")
+            image(main_bg, 0, 0, RESOLUTION_W, RESOLUTION_H)
             image(table, 20, 150, RESOLUTION_W - 40, RESOLUTION_H - 250)
             distance = math.sqrt((mouseX-self.curx)**2+(mouseY-self.cury)**2)
             distance/=10
@@ -661,18 +669,60 @@ Losing:
         self.on_home_page = False
         self.on_instructions_page = True
                 
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+class GameOverPage:
+    def __init__(self):
+        self.buttons = []
+        self.game_over_page_image = home_page_image
+        self.on_game_over_page = True
+        self.setup_buttons()
+        
+    def setup_buttons(self):
+        self.buttons.append(Button(350, (RESOLUTION_H / 2) +100, 320, 110, play_button, self.restart_game))
+        self.buttons.append(Button(350, 600, 320, 110, quit_button, self.quit_game))
+
+    def draw_gameover_page(self):
+        background(0)
+        image(self.game_over_page_image, 0, 0, RESOLUTION_W, RESOLUTION_H, 211, 0, 1498, 1080)
+        for button in self.buttons:
+            button.display()
+        textSize(50)
+        text("Game Over!", RESOLUTION_W / 2, (RESOLUTION_H / 2) -70)
+        text("Player "+str(game.players[game.turn].id)+" Wins! Yayy!!", RESOLUTION_W / 2, RESOLUTION_H / 2)
+        text("Play again?", RESOLUTION_W / 2, (RESOLUTION_H / 2) +70)
+        
+    def quit_game(self):
+        exit()
+        is_game_over = False
+
+        
+    def restart_game(self):
+        global is_game_over, game, homepage
+        is_game_over = False
+        game=Game()
+        homepage= HomePage()
+        sound_manager = Sound()
+
+    def handle_mouse_press(self, mouse_x, mouse_y):
+        for button in self.buttons:
+            if button.is_hovered(mouse_x, mouse_y):
+                button.handle_click()
+
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+        
+        
+        
 # ==========================================================
 game = Game()
-
-
 homepage = HomePage()
-# sound_manager = Sound()
+gameoverpage = GameOverPage()
+sound_manager = Sound()
 
 def setup():
     size(RESOLUTION_W, RESOLUTION_H)
-    # sound_manager.play_mario_sound()
+    sound_manager.play_mario_sound()
     # game.setup()
-    # pocket_sound.play()  #remove this, its just for testing
     # mario_sound.play() 
     # mario_sound.loop()
     
@@ -686,16 +736,21 @@ def draw():
     elif not game.alive:
         print("ALIVING GAME")
         homepage.start_game()
+    elif is_game_over:
+        gameoverpage.draw_gameover_page()
     else:
         game.display()
 def mousePressed():
-    global homepage
+    global homepage, gameoverpage, is_game_over
     game.handle_mouse_press(mouseX,mouseY)
     homepage.handle_mouse_press(mouseX, mouseY)
+    if is_game_over:
+        gameoverpage.handle_mouse_press(mouseX, mouseY)
+    else:
+        homepage.handle_mouse_press(mouseX, mouseY)
         
 def mouseReleased():
     game.hit(mouseX,mouseY)
-
-
+    
     
   
