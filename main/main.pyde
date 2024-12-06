@@ -38,11 +38,17 @@ RESOLUTION_W = 1000
 RESOLUTION_H = 800
 BALL_RADIUS = 15
 BALL_TYPES = ["cue","solid","solid","solid","solid","solid","solid","solid","8-ball","stripes","stripes","stripes","stripes","stripes","stripes","stripes"]
+# positions = [
+#     (240, 275, 1), (210, 260, 2), (210, 290, 3), (180, 245, 4),
+#     (180, 305, 15), (150, 230, 5), (150, 260, 6), (150, 290, 7),
+#     (180, 275, 8), (150, 320, 9), (120, 215, 10), (120, 245, 11),
+#     (120, 275, 12), (120, 305, 13), (120, 335, 14)
+# ]
 positions = [
-    (240, 275, 1), (210, 260, 2), (210, 290, 3), (180, 245, 4),
-    (180, 305, 15), (150, 230, 5), (150, 260, 6), (150, 290, 7),
-    (180, 275, 8), (150, 320, 9), (120, 215, 10), (120, 245, 11),
-    (120, 275, 12), (120, 305, 13), (120, 335, 14)
+    (210, 260), (210, 290), (180, 245),
+    (180, 305), (150, 230), (150, 260), (150, 290),
+    (150, 320), (120, 215), (120, 245),
+    (120, 275), (120, 305), (120, 335)
 ]
 FRICTION = 0.02
 is_game_over = False
@@ -340,7 +346,7 @@ class Player:
         noStroke()
         for x, y in positions:
             fill(0,0,0) 
-            ellipse(x, y, 35, 35)
+            ellipse(x, y, 33, 33)
             if(len(self.list_of_balls)):
                 ball = self.list_of_balls.pop()
                 imageMode(CENTER)
@@ -359,6 +365,7 @@ class Player:
         fill(255)
         textAlign(CENTER)
         text("Player "+str(self.id), RESOLUTION_W/2 + self.side*200, 50)
+        
     def update(self):
         for ball in game.balls:
             if ball.type==self.group and not ball.is_pocketed:
@@ -366,6 +373,7 @@ class Player:
         if not self.list_of_balls and self.group!=None and self.group!='8-ball':
             self.group = '8-ball'
             self.update()
+            
     def display(self):
         self.update()
         if self.is_turn:
@@ -381,10 +389,21 @@ class Game:
     def __init__(self):
         self.alive=0
         self.balls = []
-        for x, y, n in positions:
-            # if n == 13: #<=================================================== FIX BALL 13
-            #     continue
-            self.balls.append(Ball(x + 30, y + 150, n))
+        self.balls.append(Ball(240+30, 275+150, 1))
+        self.balls.append(Ball(180+30, 275+150, 8))
+        rest_of_balls = [2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15]
+        random.shuffle(rest_of_balls)
+        for n in rest_of_balls:
+            x,y=positions.pop()
+            self.balls.append(Ball(int(x + 30), int(y + 150), int(n)))
+        for ball in self.balls:
+            print(ball.position.x,ball.position.y,ball.ID)
+#             positions = [
+#     (210, 260), (210, 290), (180, 245),
+#     (180, 305), (150, 230), (150, 260), (150, 290),
+#     (150, 320), (120, 215), (120, 245),
+#     (120, 275), (120, 305), (120, 335)
+# ]
     
         self.players = [Player("Player 1",1),Player("Player 2",2)]
         self.starting_player = None
