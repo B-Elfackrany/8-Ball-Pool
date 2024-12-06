@@ -70,7 +70,7 @@ ball_14 = loadImage(PATH + "/media/" +"ball_14.png")
 ball_15 = loadImage(PATH + "/media/" +"ball_15.png")
 
 avatar = [loadImage(PATH + "/media/" +"avatar1.png"),loadImage(PATH + "/media/" +"avatar2.png")]
-highlight = loadImage(PATH + "/media/" +"glow.png")
+highlight = loadImage(PATH + "/media/" +"glow2.png")
 text_box = loadImage(PATH + "/media/" + "text_box.png")
 
 
