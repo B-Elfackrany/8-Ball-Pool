@@ -414,8 +414,34 @@ class Player:
         self.draw_placeholders()
         self.draw_avatars()
 
+# textbox class
+class TextBox:
+    def __init__(self):
+        self.foul_message = None
+        self.turn_message = None
+        self.show_text_box = False
+        self.starting_player_text = None
+        
+    def display_text_box(self):
+        # print(self.show_text_box, self.starting_player_text)
+        if self.show_text_box and self.foul_message:
+            image(text_box, 200, 710, 600, 80)
+            #textFont(font)  
+            fill(255) 
+            textAlign(CENTER)
+            text(self.foul_message, 200 + text_box.width / 2, 719 + text_box.height / 2)
+        elif self.show_text_box and self.turn_message:
+            image(text_box, 200, 710, 600, 80)
+            fill(255) 
+            textAlign(CENTER)
+            text(self.turn_message, 200 + text_box.width / 2, 719 + text_box.height / 2)
+        elif self.show_text_box and self.starting_player_text:
+            image(text_box, 200, 710, 600, 80)
+            fill(255) 
+            textAlign(CENTER)
+            text(self.starting_player_text, 200 + text_box.width / 2, 719 + text_box.height / 2)
+        
 
-# ==========================================================
 # Game Class
 # ==========================================================
 class Game:
@@ -442,7 +468,7 @@ class Game:
         self.players = [Player("Player 1",1),Player("Player 2",2)]
         self.starting_player = None
         self.game_state = "SHOW_STARTING_PLAYER"
-        self.turn = self.pick_starting_player()
+        
         self.cue = CueBall(700,275+150,0)
         # seballs.append(cue)
         self.pockets =[]
@@ -453,6 +479,8 @@ class Game:
         self.is_break=1
         self.has_collided=0
         self.first_collision=None
+        self.textbox = TextBox()     
+        self.turn = self.pick_starting_player()  
         
     def start(self):
         print("I AM ALIVE")
@@ -471,8 +499,9 @@ class Game:
         
     def pick_starting_player(self):
         turn = random.choice([0,1])
-        self.starting_player = self.players[turn]
-        self.starting_player_text = str(self.starting_player.name) + " is starting the game and gets to break <3"
+        self.starting_player = self.players[turn]    
+        self.textbox.starting_player_text = str(self.starting_player.name) + " starts the game and gets to break <3"   
+        self.textbox.show_text_box = True
         self.players[turn].is_turn=1
         return turn
     
@@ -480,6 +509,8 @@ class Game:
         self.players[self.turn].is_turn=0
         self.turn=1-self.turn
         self.players[self.turn].is_turn=1
+        self.textbox.turn_message = "Current turn:" + " " + str(self.players[self.turn].name)
+        self.textbox.show_text_box = True
         
     def assign_groups_on_first_pocket(self, ball, current_player, opponent):
         if not current_player.group and ball.type in ["solids", "stripes"]:
@@ -491,6 +522,10 @@ class Game:
             self.drag(x,y)
         else:
             self.cue.place()
+            self.textbox.show_text_box = True
+            self.textbox.foul_message = None
+            self.textbox.turn_message = "Current turn:" + " " + str(self.players[self.turn].name)
+            print("TextBox updated - Turn Message:", {self.textbox.turn_message}, "Show:", {self.textbox.show_text_box})
             
     def drag(self,x,y):
         if self.alive:
@@ -539,18 +574,25 @@ class Game:
 
         if pocketed['8-ball']:
             print("8-ball IS POCKETED FOUL - (GAME OVER)")
+            self.textbox.foul_message = "FOUL : 8-Ball was pocketed - GAME OVER!"
+            self.textbox.show_text_box = True
             self.game_over()
         elif self.cue.is_pocketed:
             print("CUE IS POCKETED FOUL")
-            # self.game_over()
+            self.textbox.foul_message = "FOUL : Cue ball was pocketed!"
+            self.textbox.show_text_box = True
             self.switch_turns()
             self.ball_in_hand()
         elif self.has_collided==0:
             print("NO HIT FOUL")
+            self.textbox.foul_message = "FOUL : No ball was hit!"
+            self.textbox.show_text_box = True
             self.switch_turns()
             self.ball_in_hand()
         elif self.first_collision!=self.players[self.turn].group and self.players[self.turn].group!=None:
             print("OPPONENT BALL HIT FIRST FOUL") 
+            self.textbox.foul_message = "FOUL : Opponent's ball hit first!"
+            self.textbox.show_text_box = True
             self.switch_turns()
             self.ball_in_hand()
         elif ((len(pocketed_balls)==0) or (self.players[self.turn].group !=None and not pocketed[self.players[self.turn].group])):
@@ -602,9 +644,10 @@ class Game:
             self.players[1].display()
             fill(255,255,255)
             textAlign(CENTER)
-            text(str(self.starting_player_text), RESOLUTION_W/2, 180)
+            # text(str(self.textbox.starting_player_text), RESOLUTION_W/2, 180)
             # self.cue.track(distance if self.in_hit else 0)
             self.cue.display()
+            self.textbox.display_text_box()
 
 
         stroke(3)
@@ -783,6 +826,7 @@ homepage = HomePage()
 gameoverpage = GameOverPage()
 sound_manager = Sound()
 # ==========================================================
+
 
 def setup():
     size(RESOLUTION_W, RESOLUTION_H)
