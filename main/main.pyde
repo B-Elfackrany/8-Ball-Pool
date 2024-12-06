@@ -188,9 +188,11 @@ class Ball:
         self.velocity.y = v*sin(theta)*(-1 if self.velocity.y<0 else 1)
         
     def collide(self, other):
-        game.has_collided=1
-        if self.velocity.x>1 or self.velocity.y>1:
+        if self.velocity.x!=0 or other.velocity.x!=0 or self.velocity.y!=0 or other.velocity.y!=0:
             sound_manager.play_collision_sound()
+            game.has_collided=1
+        else:
+            return
         if game.first_collision==None:
             game.first_collision=other.type
         dx = self.position.x - other.position.x
@@ -324,13 +326,13 @@ class Player:
         self.name = name 
         self.id = id
         self.side = -1 if self.id == 1 else 1
-        self.group = None
+        self.type = None
         self.list_of_balls = []
         self.is_turn=0
         
-    def assign(self, group):
-        print("player "+str(self.id)+" was assigned "+group)
-        self.group = group
+    def assign(self, type):
+        print("player "+str(self.id)+" was assigned "+type)
+        self.type = type
     def draw_placeholders(self):
         # this function makes the placeholders for the balls of each player
         positions = [(RESOLUTION_W/2 +self.side*410, 100), (RESOLUTION_W/2 +self.side*370, 100), 
@@ -361,10 +363,10 @@ class Player:
         text("Player "+str(self.id), RESOLUTION_W/2 + self.side*200, 50)
     def update(self):
         for ball in game.balls:
-            if ball.type==self.group and not ball.is_pocketed:
+            if ball.type==self.type and not ball.is_pocketed:
                 self.list_of_balls.append(ball)
-        if not self.list_of_balls and self.group!=None and self.group!='8-ball':
-            self.group = '8-ball'
+        if not self.list_of_balls and self.type!=None and self.type!='8-ball':
+            self.type = '8-ball'
             self.update()
     def display(self):
         self.update()
@@ -427,10 +429,10 @@ class Game:
         self.turn=1-self.turn
         self.players[self.turn].is_turn=1
         
-    def assign_groups_on_first_pocket(self, ball, current_player, opponent):
-        if not current_player.group and ball.type in ["solids", "stripes"]:
-            current_player.assign_group(ball.type)
-            opponent.assign_group("solids" if ball.type == "stripes" else "stripes")            
+    def assign_types_on_first_pocket(self, ball, current_player, opponent):
+        if not current_player.type and ball.type in ["solids", "stripes"]:
+            current_player.assign_type(ball.type)
+            opponent.assign_type("solids" if ball.type == "stripes" else "stripes")            
     def handle_mouse_press(self,x,y):
         if not self.cue.is_in_hand:
             self.drag(x,y)
@@ -481,28 +483,22 @@ class Game:
         print(pocketed['stripes'], pocketed['solid'])
 
 
-                
+        action = 'continue'
         if pocketed['8-ball']:
-            print("8-ball IS POCKETED FOUL - (GAME OVER)")
-            self.game_over()
+            if self.player[self.turn].type=='8-ball':
+                action = 'win'
+            else:
+                action = 'lose'
         elif self.cue.is_pocketed:
-            print("CUE IS POCKETED FOUL")
-            self.switch_turns()
-            self.ball_in_hand()
+            action = 'foul'
         elif self.has_collided==0:
-            print("NO HIT FOUL")
-            self.switch_turns()
-            self.ball_in_hand()
-        elif self.first_collision!=self.players[self.turn].group and self.players[self.turn].group!=None:
-            print("OPPONENT BALL HIT FIRST FOUL") 
-            self.switch_turns()
-            self.ball_in_hand()
-        elif ((len(pocketed_balls)==0) or (self.players[self.turn].group !=None and not pocketed[self.players[self.turn].group])):
-            self.switch_turns()
-        elif not self.players[self.turn].list_of_balls and self.players[self.turn].group!=None:
-            self.game_over()
+            action = 'foul'
+        elif self.first_collision!=self.players[self.turn].type and self.players[self.turn].type!=None:
+            action = 'foul'
+        elif ((len(pocketed_balls)==0) or (self.players[self.turn].type !=None and not pocketed[self.players[self.turn].type])):
+            action = 'switch'
             
-        if not self.is_break and pocketed['stripes']+pocketed['solid']==1 and self.players[self.turn].group==None:
+        if not self.is_break and pocketed['stripes']+pocketed['solid']==1 and self.players[self.turn].type==None:
             if pocketed['solid']:
                 self.players[self.turn].assign("solid")
                 self.players[1-self.turn].assign("stripes")
@@ -510,6 +506,16 @@ class Game:
                 self.players[1-self.turn].assign("solid")
                 self.players[self.turn].assign("stripes") 
                 
+        if action == 'win':
+            self.game_over()
+        elif action == 'lose':
+            self.switch_turns()
+            self.game_over()
+        elif action == 'foul':
+            self.switch_turns()
+            self.ball_in_hand()
+        elif action == 'switch':
+            self.switch_turns()
         self.is_break=0
         self.has_collided=0
         self.first_collision=None
@@ -616,36 +622,36 @@ class HomePage:
         fill(255)
         rules = """RULES OF 8-BALL POOL
 Objective:
-Be the first to pocket all your group of balls (solids or stripes) and then legally pocket the 8-ball.
+Be the first to pocket all your type of balls (solids or stripes) and then legally pocket the 8-ball.
 
 Setup:
 One player breaks (hits the triangle to start the game).
 
 Gameplay:
-- After the break, the table is "open" (no group assigned yet).
-- The group (solids or stripes) is assigned when a player legally pockets a ball.
+- After the break, the table is "open" (no type assigned yet).
+- The type (solids or stripes) is assigned when a player legally pockets a ball.
 
 Taking Turns:
-- You continue your turn as long as you legally pocket a ball from your group.
+- You continue your turn as long as you legally pocket a ball from your type.
 - If you miss or commit a foul, your opponent takes their turn.
 
 Legal Shots:
-- Always hit your group of balls first (solids or stripes).
+- Always hit your type of balls first (solids or stripes).
 - After hitting your ball, any ball must touch a rail or be pocketed.
 
 The 8-Ball:
-- Can only be hit after all your group balls are pocketed.
+- Can only be hit after all your type balls are pocketed.
 - Must call the pocket for the 8-ball before shooting.
 
 Fouls:
-- Failing to hit your group ball first, failing to hit a rail or pocket a ball after contact, pocketing the cue ball.
+- Failing to hit your type ball first, failing to hit a rail or pocket a ball after contact, pocketing the cue ball.
 Fouls give the opponent ball in hand, allowing them to place the cue ball anywhere.
 
 Winning:
-You win by legally pocketing the 8-ball after clearing your group balls.
+You win by legally pocketing the 8-ball after clearing your type balls.
 
 Losing:
-- You pocket the 8-ball before clearing your group balls or you pocket the cue ball while pocketing the 8-ball.
+- You pocket the 8-ball before clearing your type balls or you pocket the cue ball while pocketing the 8-ball.
 """
         text(rules, RESOLUTION_W / 2, RESOLUTION_H / 2)
         fill(0, 0, 0)
