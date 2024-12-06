@@ -1,4 +1,5 @@
 # importing relevant libraries: 
+# ==========================================================
 import os 
 import math 
 import random 
@@ -8,6 +9,7 @@ add_library('sound')
 
 # ==========================================================
 # dimensions 
+# ==========================================================
 # width of game = 1000
 # height of game = 800
 # coordinates of top left corner of pool table image: (20, 150)
@@ -29,7 +31,8 @@ add_library('sound')
 PATH = os.getcwd()
 
 # ==========================================================
-# declaring the constants
+# declaring the constants:
+# ==========================================================
 UPPER_RAIL = 213
 BOTTOM_RAIL = 635
 LEFT_RAIL = 82
@@ -37,18 +40,29 @@ RIGHT_RAIL = 917
 RESOLUTION_W = 1000
 RESOLUTION_H = 800
 BALL_RADIUS = 15
+
 BALL_TYPES = ["cue","solid","solid","solid","solid","solid","solid","solid","8-ball","stripes","stripes","stripes","stripes","stripes","stripes","stripes"]
+
+# positions = [
+#     (240, 275, 1), (210, 260, 2), (210, 290, 3), (180, 245, 4),
+#     (180, 305, 15), (150, 230, 5), (150, 260, 6), (150, 290, 7),
+#     (180, 275, 8), (150, 320, 9), (120, 215, 10), (120, 245, 11),
+#     (120, 275, 12), (120, 305, 13), (120, 335, 14)
+# ]
 positions = [
-    (240, 275, 1), (210, 260, 2), (210, 290, 3), (180, 245, 4),
-    (180, 305, 15), (150, 230, 5), (150, 260, 6), (150, 290, 7),
-    (180, 275, 8), (150, 320, 9), (120, 215, 10), (120, 245, 11),
-    (120, 275, 12), (120, 305, 13), (120, 335, 14)
+    (210, 260), (210, 290), (180, 245),
+    (180, 305), (150, 230), (150, 260), (150, 290),
+    (150, 320), (120, 215), (120, 245),
+    (120, 275), (120, 305), (120, 335)
 ]
+
 FRICTION = 0.02
+
 is_game_over = False
 
 # ==========================================================
 # loading the media
+# ==========================================================
 cue = loadImage(PATH + "/media/" +"ball_0.png")
 table = loadImage(PATH + "/media/" +"table.png")
 stick = loadImage(PATH + "/media/" +"stick.png")
@@ -70,9 +84,8 @@ ball_14 = loadImage(PATH + "/media/" +"ball_14.png")
 ball_15 = loadImage(PATH + "/media/" +"ball_15.png")
 
 avatar = [loadImage(PATH + "/media/" +"avatar1.png"),loadImage(PATH + "/media/" +"avatar2.png")]
-highlight = loadImage(PATH + "/media/" +"glow.png")
+highlight = loadImage(PATH + "/media/" +"glow2.png")
 text_box = loadImage(PATH + "/media/" + "text_box.png")
-
 
 # bgGIF = Gif(this, PATH + "/media/" + "bg_gif.gif")
 
@@ -90,9 +103,10 @@ sound_button = loadImage(PATH + "/media/" + "sound_button.png")
 home_page_image = loadImage(PATH + "/media/" + "home_page.PNG")
 main_bg = loadImage(PATH + "/media/" + "main_bg.png")
 
+
 # ==========================================================
-# classes
 # Sounds Class:
+# ==========================================================
 class Sound:
     def __init__(self):
         self.collision_sound = collision_sound
@@ -104,6 +118,7 @@ class Sound:
         self.is_decreasing = True
         
     def play_collision_sound(self):
+        #this function plays the collision sound when balls collide 
             self.strong_collision_sound.play()
     
     def play_pocket_sound(self):
@@ -111,12 +126,13 @@ class Sound:
         self.pocket_sound.play()
     
     def play_mario_sound(self):
-        # this function plays the background music 
+        # this function plays the background music yippee
         self.mario_sound.play()
         self.mario_sound.loop()
         self.mario_sound.amp(self.volume_level)
         
     def toggle_sound(self):
+        #this function controls the mechanism for the sound button on the homepage 
         if not self.is_sound_on:            
             self.mario_sound.loop()
             self.is_sound_on = True             
@@ -132,8 +148,11 @@ class Sound:
                     self.is_decreasing = True       
 
             self.mario_sound.amp(self.volume_level)
-        
-#Point Class:
+
+
+# ==========================================================
+# Point Class:
+# ==========================================================
 class Point():
     def __init__(self,x,y):
         self.x = x
@@ -152,8 +171,11 @@ class Point():
         else:
             self.x += other[0]
             self.y += other[1]
-            
+
+
+# ==========================================================
 # Ball Class:
+# ==========================================================
 class Ball:
     def __init__(self,x,y,ID):
         self.ID = ID
@@ -175,7 +197,8 @@ class Ball:
     
     def pocket(self):
         print('pocketed')
-        self.is_pocketed=1    
+        self.is_pocketed=1  
+          
     def apply_friction(self):
         v = math.sqrt(self.velocity.x**2 + self.velocity.y**2)
         if v == 0:
@@ -218,7 +241,6 @@ class Ball:
         other.position.y -= overlap * ny / 2
 
     def check_collision(self):
-
         if self.position.x-self.radius <= LEFT_RAIL:
             if(self.position.y-self.radius>=245 and self.position.y+self.radius<=602):
                 self.position.x = LEFT_RAIL+self.radius
@@ -243,6 +265,7 @@ class Ball:
                 self.velocity.y*=-1
             else:
                 self.pocket()
+                
     def update(self):
         if not self.is_pocketed:
             # print(self.ID)
@@ -258,12 +281,17 @@ class Ball:
             image(self.img,self.position.x,self.position.y)
             imageMode(CORNER)
 
+# ==========================================================
+# cueball class 
+# ==========================================================
 class CueBall(Ball):
     def __init__(self,x,y,ID):
         Ball.__init__(self,x,y,ID)
         self.is_in_hand=False
+        
     def in_hand(self):
         self.is_in_hand=True
+        
     def track(self,distance):
         x,y=mouseX-self.position.x,mouseY-self.position.y
         angle = math.atan(float(y) / (x)) if x!=0 else PI/2
@@ -296,12 +324,14 @@ class CueBall(Ball):
             # game.complete_break()
             # game.next_turn()
         return angle
+    
     def is_colliding(self):
         for ball in game.balls:
             distance = math.sqrt((ball.position.x-self.position.x)**2+(ball.position.y-self.position.y)**2)
             if distance<=2*BALL_RADIUS:
                 return 1
         return 0
+    
     def place(self):
         if not self.is_colliding() and not self.is_pocketed:
             self.is_in_hand=0
@@ -313,6 +343,7 @@ class CueBall(Ball):
             imageMode(CORNER)
         else:
             Ball.display(self)
+            
     def update(self):
         if(self.is_in_hand):
             self.is_pocketed=0
@@ -320,7 +351,10 @@ class CueBall(Ball):
             self.position.y=mouseY
         Ball.update(self)
         
-# Player class 
+        
+# ==========================================================
+# Player class
+# ==========================================================
 class Player:
     def __init__(self, name, id):
         self.name = name 
@@ -342,12 +376,13 @@ class Player:
         noStroke()
         for x, y in positions:
             fill(0,0,0) 
-            ellipse(x, y, 35, 35)
+            ellipse(x, y, 33, 33)
             if(len(self.list_of_balls)):
                 ball = self.list_of_balls.pop()
                 imageMode(CENTER)
                 image(ball.img,x,y,30,30)
                 imageMode(CORNER)
+                
     def draw_avatars(self):
         imageMode(CENTER)
         image(avatar[self.id-1], RESOLUTION_W/2 +self.side*100, 70, 100, 100)
@@ -361,6 +396,7 @@ class Player:
         fill(255)
         textAlign(CENTER)
         text("Player "+str(self.id), RESOLUTION_W/2 + self.side*200, 50)
+        
     def update(self):
         for ball in game.balls:
             if ball.type==self.type and not ball.is_pocketed:
@@ -368,6 +404,7 @@ class Player:
         if not self.list_of_balls and self.type!=None and self.type!='8-ball':
             self.type = '8-ball'
             self.update()
+            
     def display(self):
         self.update()
         if self.is_turn:
@@ -378,20 +415,61 @@ class Player:
         self.draw_placeholders()
         self.draw_avatars()
 
+# textbox class
+class TextBox:
+    def __init__(self):
+        self.foul_message = None
+        self.turn_message = None
+        self.show_text_box = False
+        self.starting_player_text = None
+        
+    def display_text_box(self):
+        # print(self.show_text_box, self.starting_player_text)
+        if self.show_text_box and self.foul_message:
+            image(text_box, 200, 710, 600, 80)
+            #textFont(font)  
+            fill(255) 
+            textAlign(CENTER)
+            text(self.foul_message, 200 + text_box.width / 2, 719 + text_box.height / 2)
+        elif self.show_text_box and self.turn_message:
+            image(text_box, 200, 710, 600, 80)
+            fill(255) 
+            textAlign(CENTER)
+            text(self.turn_message, 200 + text_box.width / 2, 719 + text_box.height / 2)
+        elif self.show_text_box and self.starting_player_text:
+            image(text_box, 200, 710, 600, 80)
+            fill(255) 
+            textAlign(CENTER)
+            text(self.starting_player_text, 200 + text_box.width / 2, 719 + text_box.height / 2)
+        
+
 # Game Class
+# ==========================================================
 class Game:
     def __init__(self):
+        positions = [
+    (210, 260), (210, 290), (180, 245),
+    (180, 305), (150, 230), (150, 260), (150, 290),
+    (150, 320), (120, 215), (120, 245),
+    (120, 275), (120, 305), (120, 335)
+]
         self.alive=0
         self.balls = []
-        for x, y, n in positions:
-            # if n == 13: #<=================================================== FIX BALL 13
-            #     continue
-            self.balls.append(Ball(x + 30, y + 150, n))
+        self.balls.append(Ball(240+30, 275+150, 1))
+        self.balls.append(Ball(180+30, 275+150, 8))
+        rest_of_balls = [2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15]
+        random.shuffle(rest_of_balls)
+        for n in rest_of_balls:
+            x,y=positions.pop()
+            self.balls.append(Ball(int(x + 30), int(y + 150), int(n)))
+        for ball in self.balls:
+            print(ball.position.x,ball.position.y,ball.ID)
+
     
         self.players = [Player("Player 1",1),Player("Player 2",2)]
         self.starting_player = None
         self.game_state = "SHOW_STARTING_PLAYER"
-        self.turn = self.pick_starting_player()
+        
         self.cue = CueBall(700,275+150,0)
         # seballs.append(cue)
         self.pockets =[]
@@ -402,10 +480,13 @@ class Game:
         self.is_break=1
         self.has_collided=0
         self.first_collision=None
+        self.textbox = TextBox()     
+        self.turn = self.pick_starting_player()  
         
     def start(self):
         print("I AM ALIVE")
         self.alive=1
+        
     def ball_in_hand(self):
         self.cue.in_hand()
         # self.cue = CueBall(700,275+150,0)
@@ -419,8 +500,9 @@ class Game:
         
     def pick_starting_player(self):
         turn = random.choice([0,1])
-        self.starting_player = self.players[turn]
-        self.starting_player_text = str(self.starting_player.name) + " is starting the game and gets to break <3"
+        self.starting_player = self.players[turn]    
+        self.textbox.starting_player_text = str(self.starting_player.name) + " starts the game and gets to break <3"   
+        self.textbox.show_text_box = True
         self.players[turn].is_turn=1
         return turn
     
@@ -428,6 +510,8 @@ class Game:
         self.players[self.turn].is_turn=0
         self.turn=1-self.turn
         self.players[self.turn].is_turn=1
+        self.textbox.turn_message = "Current turn:" + " " + str(self.players[self.turn].name)
+        self.textbox.show_text_box = True
         
     def assign_types_on_first_pocket(self, ball, current_player, opponent):
         if not current_player.type and ball.type in ["solids", "stripes"]:
@@ -438,6 +522,11 @@ class Game:
             self.drag(x,y)
         else:
             self.cue.place()
+            self.textbox.show_text_box = True
+            self.textbox.foul_message = None
+            self.textbox.turn_message = "Current turn:" + " " + str(self.players[self.turn].name)
+            print("TextBox updated - Turn Message:", {self.textbox.turn_message}, "Show:", {self.textbox.show_text_box})
+            
     def drag(self,x,y):
         if self.alive:
             # print("555")
@@ -451,6 +540,7 @@ class Game:
             if not ball.is_pocketed:
                 flag &=ball.velocity.x==0 and ball.velocity.y==0
         return flag
+    
     def hit(self,x,y):
         self.in_hit=0
         if self.alive and (self.curx !=0 or self.cury!=0) and not self.in_play:
@@ -464,11 +554,11 @@ class Game:
             self.cue.hit(distance,angle)
             self.in_play=1
         
-            
     def check_collision(self,ball1,ball2):
         distance = math.sqrt((ball1.position.x-ball2.position.x)**2+(ball1.position.y-ball2.position.y)**2)
         if distance<=2*BALL_RADIUS:
             ball1.collide(ball2)
+            
     def evaluate_turn(self):
         print("TURN ENDED")
         pocketed_balls=[]
@@ -488,12 +578,21 @@ class Game:
             if self.player[self.turn].type=='8-ball':
                 action = 'win'
             else:
+                self.textbox.foul_message = "FOUL: 8-Ball was pocketed - GAME OVER! (womp womp)"
+                time.sleep(2)
+                self.textbox.show_text_box = True   
                 action = 'lose'
         elif self.cue.is_pocketed:
+            self.textbox.foul_message = "FOUL: Cue ball was pocketed! (oopsies)"
+            self.textbox.show_text_box = True
             action = 'foul'
         elif self.has_collided==0:
+            self.textbox.foul_message = "FOUL: No ball was hit! (task failed succesfully)"
+            self.textbox.show_text_box = True
             action = 'foul'
         elif self.first_collision!=self.players[self.turn].type and self.players[self.turn].type!=None:
+            self.textbox.foul_message = "FOUL: Opponent's ball hit first! (rookie mistake)"
+            self.textbox.show_text_box = True
             action = 'foul'
         elif ((len(pocketed_balls)==0) or (self.players[self.turn].type !=None and not pocketed[self.players[self.turn].type])):
             action = 'switch'
@@ -519,6 +618,7 @@ class Game:
         self.is_break=0
         self.has_collided=0
         self.first_collision=None
+        
     def update(self):
         for ball in self.balls:
             ball.update()
@@ -551,9 +651,10 @@ class Game:
             self.players[1].display()
             fill(255,255,255)
             textAlign(CENTER)
-            text(str(self.starting_player_text), RESOLUTION_W/2, 180)
+            # text(str(self.textbox.starting_player_text), RESOLUTION_W/2, 180)
             # self.cue.track(distance if self.in_hit else 0)
             self.cue.display()
+            self.textbox.display_text_box()
 
 
         stroke(3)
@@ -564,7 +665,10 @@ class Game:
         line(82, 246, 82, 602)
         line(917, 246, 917, 602)
         
-#-------------------------------------------------------------------------------------
+        
+# ==========================================================
+# Button class 
+# ==========================================================
 class Button:
     def __init__(self, x, y, w, h, image, action):
         self.x = x
@@ -583,10 +687,11 @@ class Button:
     def handle_click(self):
         if self.action:
             self.action()
-    
-
-# Functions used in the homepage class
+            
+            
+# ==========================================================
 # Homepage class
+# ==========================================================
 class HomePage:
     def __init__(self):
         self.buttons = []
@@ -608,13 +713,17 @@ class HomePage:
             button.display()
     def quit_game(self):
         exit()
+        
     def toggle_sound(self):
         print("Toggling sound")
+        
     def start_game(self):
         self.on_home_page = False
         game.start()
+        
     def toggle_sound(self):
         sound_manager.toggle_sound()
+        
     def draw_instructions_page(self):
         background(150, 123, 182)
         textAlign(CENTER, CENTER)
@@ -675,7 +784,10 @@ Losing:
         self.on_home_page = False
         self.on_instructions_page = True
                 
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                
+# ==========================================================
+# gameover class 
+# ==========================================================
 class GameOverPage:
     def __init__(self):
         self.buttons = []
@@ -688,6 +800,7 @@ class GameOverPage:
         self.buttons.append(Button(350, 600, 320, 110, quit_button, self.quit_game))
 
     def draw_gameover_page(self):
+        game.alive=0
         background(0)
         image(self.game_over_page_image, 0, 0, RESOLUTION_W, RESOLUTION_H, 211, 0, 1498, 1080)
         for button in self.buttons:
@@ -701,7 +814,6 @@ class GameOverPage:
         exit()
         is_game_over = False
 
-        
     def restart_game(self):
         global is_game_over, game, homepage
         is_game_over = False
@@ -714,16 +826,14 @@ class GameOverPage:
             if button.is_hovered(mouse_x, mouse_y):
                 button.handle_click()
 
-# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-        
-        
-        
 # ==========================================================
 game = Game()
 homepage = HomePage()
 gameoverpage = GameOverPage()
 sound_manager = Sound()
+# ==========================================================
+
 
 def setup():
     size(RESOLUTION_W, RESOLUTION_H)
@@ -739,13 +849,14 @@ def draw():
         homepage.draw_home_page()
     elif homepage.on_instructions_page:
         homepage.draw_instructions_page()
-    elif not game.alive:
-        print("ALIVING GAME")
-        homepage.start_game()
+    # elif not game.alive:
+    #     print("ALIVING GAME")
+    #     # homepage.start_game()
     elif is_game_over:
         gameoverpage.draw_gameover_page()
     else:
         game.display()
+        
 def mousePressed():
     global homepage, gameoverpage, is_game_over
     game.handle_mouse_press(mouseX,mouseY)
