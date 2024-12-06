@@ -574,24 +574,25 @@ class Game:
 
         if pocketed['8-ball']:
             print("8-ball IS POCKETED FOUL - (GAME OVER)")
-            self.textbox.foul_message = "FOUL : 8-Ball was pocketed - GAME OVER!"
+            self.textbox.foul_message = "FOUL: 8-Ball was pocketed - GAME OVER! (womp womp)"
+            time.sleep(2)
             self.textbox.show_text_box = True
             self.game_over()
         elif self.cue.is_pocketed:
             print("CUE IS POCKETED FOUL")
-            self.textbox.foul_message = "FOUL : Cue ball was pocketed!"
+            self.textbox.foul_message = "FOUL: Cue ball was pocketed! (oopsies)"
             self.textbox.show_text_box = True
             self.switch_turns()
             self.ball_in_hand()
         elif self.has_collided==0:
             print("NO HIT FOUL")
-            self.textbox.foul_message = "FOUL : No ball was hit!"
+            self.textbox.foul_message = "FOUL: No ball was hit! (task failed succesfully)"
             self.textbox.show_text_box = True
             self.switch_turns()
             self.ball_in_hand()
         elif self.first_collision!=self.players[self.turn].group and self.players[self.turn].group!=None:
             print("OPPONENT BALL HIT FIRST FOUL") 
-            self.textbox.foul_message = "FOUL : Opponent's ball hit first!"
+            self.textbox.foul_message = "FOUL: Opponent's ball hit first! (rookie mistake)"
             self.textbox.show_text_box = True
             self.switch_turns()
             self.ball_in_hand()
