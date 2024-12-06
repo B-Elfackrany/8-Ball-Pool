@@ -93,6 +93,7 @@ collision_sound = SoundFile(this, PATH + "/media/" + "collision.mp3")
 strong_collision_sound = SoundFile(this, PATH + "/media/" + "strong_collision.mp3")
 pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
 mario_sound = SoundFile(this, PATH + "/media/" + "mariokart.mp3")
+wasted_sound = SoundFile(this, PATH + "/media/" + "WASTED.mp3")
 
 # font = loadFont(PATH + "/media/" +"font.ttf")
 
@@ -116,6 +117,7 @@ class Sound:
         self.is_sound_on = True
         self.volume_level = 1.0
         self.is_decreasing = True
+        self.wasted_sound = wasted_sound
         
     def play_collision_sound(self):
         #this function plays the collision sound when balls collide 
@@ -125,6 +127,10 @@ class Sound:
         # this function plays the pocket sound when a ball is pocketed
         self.pocket_sound.play()
     
+    def play_wasted_sound(self):
+        # this function plays the wasted sound when 8 ball is pocketed
+        self.wasted_sound.play()
+        
     def play_mario_sound(self):
         # this function plays the background music yippee
         self.mario_sound.play()
@@ -574,9 +580,13 @@ class Game:
 
         if pocketed['8-ball']:
             print("8-ball IS POCKETED FOUL - (GAME OVER)")
+            sound_manager.mario_sound.pause()
             self.textbox.foul_message = "FOUL: 8-Ball was pocketed - GAME OVER! (womp womp)"
-            time.sleep(2)
             self.textbox.show_text_box = True
+            self.update()
+            sound_manager.play_wasted_sound()
+            time.sleep(5)
+            sound_manager.mario_sound.play()
             self.game_over()
         elif self.cue.is_pocketed:
             print("CUE IS POCKETED FOUL")
