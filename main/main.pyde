@@ -750,6 +750,7 @@ class GameOverPage:
         self.buttons.append(Button(350, 600, 320, 110, quit_button, self.quit_game))
 
     def draw_gameover_page(self):
+        game.alive=0
         background(0)
         image(self.game_over_page_image, 0, 0, RESOLUTION_W, RESOLUTION_H, 211, 0, 1498, 1080)
         for button in self.buttons:
@@ -785,7 +786,7 @@ sound_manager = Sound()
 
 def setup():
     size(RESOLUTION_W, RESOLUTION_H)
-    # sound_manager.play_mario_sound()
+    sound_manager.play_mario_sound()
     # game.setup()
     # mario_sound.play() 
     # mario_sound.loop()
@@ -797,9 +798,9 @@ def draw():
         homepage.draw_home_page()
     elif homepage.on_instructions_page:
         homepage.draw_instructions_page()
-    elif not game.alive:
-        print("ALIVING GAME")
-        homepage.start_game()
+    # elif not game.alive:
+    #     print("ALIVING GAME")
+    #     # homepage.start_game()
     elif is_game_over:
         gameoverpage.draw_gameover_page()
     else:
