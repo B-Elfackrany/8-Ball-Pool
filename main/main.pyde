@@ -93,7 +93,6 @@ collision_sound = SoundFile(this, PATH + "/media/" + "collision.mp3")
 strong_collision_sound = SoundFile(this, PATH + "/media/" + "strong_collision.mp3")
 pocket_sound = SoundFile(this, PATH + "/media/" + "pocket.mp3")
 mario_sound = SoundFile(this, PATH + "/media/" + "mariokart.mp3")
-wasted_sound = SoundFile(this, PATH + "/media/" + "WASTED.mp3")
 
 # font = loadFont(PATH + "/media/" +"font.ttf")
 
@@ -117,7 +116,6 @@ class Sound:
         self.is_sound_on = True
         self.volume_level = 1.0
         self.is_decreasing = True
-        self.wasted_sound = wasted_sound
         
     def play_collision_sound(self):
         #this function plays the collision sound when balls collide 
@@ -127,10 +125,6 @@ class Sound:
         # this function plays the pocket sound when a ball is pocketed
         self.pocket_sound.play()
     
-    def play_wasted_sound(self):
-        # this function plays the wasted sound when 8 ball is pocketed
-        self.wasted_sound.play()
-        
     def play_mario_sound(self):
         # this function plays the background music yippee
         self.mario_sound.play()
@@ -217,9 +211,11 @@ class Ball:
         self.velocity.y = v*sin(theta)*(-1 if self.velocity.y<0 else 1)
         
     def collide(self, other):
-        game.has_collided=1
-        if self.velocity.x>0 or self.velocity.y>0:
+        if self.velocity.x!=0 or other.velocity.x!=0 or self.velocity.y!=0 or other.velocity.y!=0:
             sound_manager.play_collision_sound()
+            game.has_collided=1
+        else:
+            return
         if game.first_collision==None:
             game.first_collision=other.type
         dx = self.position.x - other.position.x
@@ -364,14 +360,13 @@ class Player:
         self.name = name 
         self.id = id
         self.side = -1 if self.id == 1 else 1
-        self.group = None
+        self.type = None
         self.list_of_balls = []
         self.is_turn=0
         
-    def assign(self, group):
-        print("player "+str(self.id)+" was assigned "+group)
-        self.group = group
-        
+    def assign(self, type):
+        print("player "+str(self.id)+" was assigned "+type)
+        self.type = type
     def draw_placeholders(self):
         # this function makes the placeholders for the balls of each player
         positions = [(RESOLUTION_W/2 +self.side*410, 100), (RESOLUTION_W/2 +self.side*370, 100), 
@@ -404,10 +399,10 @@ class Player:
         
     def update(self):
         for ball in game.balls:
-            if ball.type==self.group and not ball.is_pocketed:
+            if ball.type==self.type and not ball.is_pocketed:
                 self.list_of_balls.append(ball)
-        if not self.list_of_balls and self.group!=None and self.group!='8-ball':
-            self.group = '8-ball'
+        if not self.list_of_balls and self.type!=None and self.type!='8-ball':
+            self.type = '8-ball'
             self.update()
             
     def display(self):
@@ -435,17 +430,18 @@ class TextBox:
             #textFont(font)  
             fill(255) 
             textAlign(CENTER)
-            text(self.foul_message, 200 + text_box.width / 2, 719 + text_box.height / 2)
+            text(self.foul_message, 195 + text_box.width / 2, 719 + text_box.height / 2)
+            # text(self.foul_message, RESOLUTION_W / 2, 719 + text_box.height / 2)
         elif self.show_text_box and self.turn_message:
             image(text_box, 200, 710, 600, 80)
             fill(255) 
             textAlign(CENTER)
-            text(self.turn_message, 200 + text_box.width / 2, 719 + text_box.height / 2)
+            text(self.turn_message, 195 + text_box.width / 2, 719 + text_box.height / 2)
         elif self.show_text_box and self.starting_player_text:
             image(text_box, 200, 710, 600, 80)
             fill(255) 
             textAlign(CENTER)
-            text(self.starting_player_text, 200 + text_box.width / 2, 719 + text_box.height / 2)
+            text(self.starting_player_text, 195 + text_box.width / 2, 719 + text_box.height / 2)
         
 
 # Game Class
@@ -518,11 +514,10 @@ class Game:
         self.textbox.turn_message = "Current turn:" + " " + str(self.players[self.turn].name)
         self.textbox.show_text_box = True
         
-    def assign_groups_on_first_pocket(self, ball, current_player, opponent):
-        if not current_player.group and ball.type in ["solids", "stripes"]:
-            current_player.assign_group(ball.type)
-            opponent.assign_group("solids" if ball.type == "stripes" else "stripes")  
-                      
+    def assign_types_on_first_pocket(self, ball, current_player, opponent):
+        if not current_player.type and ball.type in ["solids", "stripes"]:
+            current_player.assign_type(ball.type)
+            opponent.assign_type("solids" if ball.type == "stripes" else "stripes")            
     def handle_mouse_press(self,x,y):
         if not self.cue.is_in_hand:
             self.drag(x,y)
@@ -578,40 +573,32 @@ class Game:
                 
         print(pocketed['stripes'], pocketed['solid'])
 
+
+        action = 'continue'
         if pocketed['8-ball']:
-            print("8-ball IS POCKETED FOUL - (GAME OVER)")
-            sound_manager.mario_sound.pause()
-            self.textbox.foul_message = "FOUL: 8-Ball was pocketed - GAME OVER! (womp womp)"
-            self.textbox.show_text_box = True
-            self.update()
-            sound_manager.play_wasted_sound()
-            time.sleep(5)
-            sound_manager.mario_sound.play()
-            self.game_over()
+            if self.player[self.turn].type=='8-ball':
+                action = 'win'
+            else:
+                self.textbox.foul_message = "FOUL: 8-Ball was pocketed - GAME OVER! (womp womp)"
+                time.sleep(2)
+                self.textbox.show_text_box = True   
+                action = 'lose'
         elif self.cue.is_pocketed:
-            print("CUE IS POCKETED FOUL")
             self.textbox.foul_message = "FOUL: Cue ball was pocketed! (oopsies)"
             self.textbox.show_text_box = True
-            self.switch_turns()
-            self.ball_in_hand()
+            action = 'foul'
         elif self.has_collided==0:
-            print("NO HIT FOUL")
             self.textbox.foul_message = "FOUL: No ball was hit! (task failed succesfully)"
             self.textbox.show_text_box = True
-            self.switch_turns()
-            self.ball_in_hand()
-        elif self.first_collision!=self.players[self.turn].group and self.players[self.turn].group!=None:
-            print("OPPONENT BALL HIT FIRST FOUL") 
+            action = 'foul'
+        elif self.first_collision!=self.players[self.turn].type and self.players[self.turn].type!=None:
             self.textbox.foul_message = "FOUL: Opponent's ball hit first! (rookie mistake)"
             self.textbox.show_text_box = True
-            self.switch_turns()
-            self.ball_in_hand()
-        elif ((len(pocketed_balls)==0) or (self.players[self.turn].group !=None and not pocketed[self.players[self.turn].group])):
-            self.switch_turns()
-        elif not self.players[self.turn].list_of_balls and self.players[self.turn].group!=None:
-            self.game_over()
+            action = 'foul'
+        elif ((len(pocketed_balls)==0) or (self.players[self.turn].type !=None and not pocketed[self.players[self.turn].type])):
+            action = 'switch'
             
-        if not self.is_break and pocketed['stripes']+pocketed['solid']==1 and self.players[self.turn].group==None:
+        if not self.is_break and pocketed['stripes']+pocketed['solid']==1 and self.players[self.turn].type==None:
             if pocketed['solid']:
                 self.players[self.turn].assign("solid")
                 self.players[1-self.turn].assign("stripes")
@@ -619,6 +606,16 @@ class Game:
                 self.players[1-self.turn].assign("solid")
                 self.players[self.turn].assign("stripes") 
                 
+        if action == 'win':
+            self.game_over()
+        elif action == 'lose':
+            self.switch_turns()
+            self.game_over()
+        elif action == 'foul':
+            self.switch_turns()
+            self.ball_in_hand()
+        elif action == 'switch':
+            self.switch_turns()
         self.is_break=0
         self.has_collided=0
         self.first_collision=None
@@ -735,36 +732,36 @@ class HomePage:
         fill(255)
         rules = """RULES OF 8-BALL POOL
 Objective:
-Be the first to pocket all your group of balls (solids or stripes) and then legally pocket the 8-ball.
+Be the first to pocket all your type of balls (solids or stripes) and then legally pocket the 8-ball.
 
 Setup:
 One player breaks (hits the triangle to start the game).
 
 Gameplay:
-- After the break, the table is "open" (no group assigned yet).
-- The group (solids or stripes) is assigned when a player legally pockets a ball.
+- After the break, the table is "open" (no type assigned yet).
+- The type (solids or stripes) is assigned when a player legally pockets a ball.
 
 Taking Turns:
-- You continue your turn as long as you legally pocket a ball from your group.
+- You continue your turn as long as you legally pocket a ball from your type.
 - If you miss or commit a foul, your opponent takes their turn.
 
 Legal Shots:
-- Always hit your group of balls first (solids or stripes).
+- Always hit your type of balls first (solids or stripes).
 - After hitting your ball, any ball must touch a rail or be pocketed.
 
 The 8-Ball:
-- Can only be hit after all your group balls are pocketed.
+- Can only be hit after all your type balls are pocketed.
 - Must call the pocket for the 8-ball before shooting.
 
 Fouls:
-- Failing to hit your group ball first, failing to hit a rail or pocket a ball after contact, pocketing the cue ball.
+- Failing to hit your type ball first, failing to hit a rail or pocket a ball after contact, pocketing the cue ball.
 Fouls give the opponent ball in hand, allowing them to place the cue ball anywhere.
 
 Winning:
-You win by legally pocketing the 8-ball after clearing your group balls.
+You win by legally pocketing the 8-ball after clearing your type balls.
 
 Losing:
-- You pocket the 8-ball before clearing your group balls or you pocket the cue ball while pocketing the 8-ball.
+- You pocket the 8-ball before clearing your type balls or you pocket the cue ball while pocketing the 8-ball.
 """
         text(rules, RESOLUTION_W / 2, RESOLUTION_H / 2)
         fill(0, 0, 0)
