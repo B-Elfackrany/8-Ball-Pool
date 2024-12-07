@@ -619,6 +619,20 @@ class Game:
                 self.players[1-self.turn].assign("solid")
                 self.players[self.turn].assign("stripes") 
                 
+
+        if action == 'win':
+            self.game_over()
+        elif action == 'lose':
+            self.switch_turns()
+            self.game_over()
+        elif action == 'foul':
+            self.switch_turns()
+            self.ball_in_hand()
+        elif action == 'switch':
+            self.switch_turns()
+        elif action == 'continue':
+            self.textbox.turn_message = "Current turn:" + " " + str(self.players[self.turn].name)
+
         self.is_break=0
         self.has_collided=0
         self.first_collision=None
