@@ -7,6 +7,7 @@ import time
 add_library('sound')
 # add_library('gifAnimation')
 
+
 # ==========================================================
 # dimensions 
 # ==========================================================
@@ -26,9 +27,11 @@ add_library('sound')
 # verticle cushion 1 line(82, 246, 82, 602)
 # verticle cushion 2 line(917, 246, 917, 602)
 
+
 # ==========================================================
 # getting the current working directory: 
 PATH = os.getcwd()
+
 
 # ==========================================================
 # declaring the constants:
@@ -59,6 +62,7 @@ positions = [
 FRICTION = 0.02
 
 is_game_over = False
+
 
 # ==========================================================
 # loading the media
@@ -285,6 +289,7 @@ class Ball:
             image(self.img,self.position.x,self.position.y)
             imageMode(CORNER)
 
+
 # ==========================================================
 # cueball class 
 # ==========================================================
@@ -420,7 +425,10 @@ class Player:
         self.draw_placeholders()
         self.draw_avatars()
 
+
+# ==========================================================
 # textbox class
+# ==========================================================
 class TextBox:
     def __init__(self):
         self.foul_message = None
@@ -448,6 +456,7 @@ class TextBox:
             text(self.starting_player_text, 200 + text_box.width / 2, 719 + text_box.height / 2)
         
 
+# ==========================================================
 # Game Class
 # ==========================================================
 class Game:
@@ -889,4 +898,5 @@ def mouseReleased():
     game.hit(mouseX,mouseY)
     
     
+# hii if u made it this far hope ur having an amazing day!! <3
   
