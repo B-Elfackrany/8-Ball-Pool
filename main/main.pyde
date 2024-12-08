@@ -445,17 +445,17 @@ class TextBox:
             #textFont(font)  
             fill(255) 
             textAlign(CENTER)
-            text(self.foul_message, 200 + text_box.width / 2, 719 + text_box.height / 2)
+            text(self.foul_message, 190 + text_box.width / 2, 719 + text_box.height / 2)
         elif self.turn_message:
             image(text_box, 200, 710, 600, 80)
             fill(255) 
             textAlign(CENTER)
-            text(self.turn_message, 200 + text_box.width / 2, 719 + text_box.height / 2)
+            text(self.turn_message, 190 + text_box.width / 2, 719 + text_box.height / 2)
         elif self.starting_player_text:
             image(text_box, 200, 710, 600, 80)
             fill(255) 
             textAlign(CENTER)
-            text(self.starting_player_text, 200 + text_box.width / 2, 719 + text_box.height / 2)
+            text(self.starting_player_text, 190 + text_box.width / 2, 719 + text_box.height / 2)
         
 
 # ==========================================================
