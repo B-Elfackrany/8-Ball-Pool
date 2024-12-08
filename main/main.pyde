@@ -593,14 +593,14 @@ class Game:
         if pocketed['8-ball']:
             if self.players[self.turn].group != '8-ball':
                 print("8-ball IS POCKETED FOUL - (GAME OVER)")
-                sound_manager.mario_sound.pause()
+                # sound_manager.mario_sound.pause()
                 sound_manager.play_wasted_sound()
                 self.textbox.foul_message = "FOUL: 8-Ball was pocketed. GAME OVER! (womp womp)"
                 self.textbox.display_text_box()
                 self.display()
                 print('a7a')
                 time.sleep(5)
-                sound_manager.mario_sound.play()
+                # sound_manager.mario_sound.play()
                 action = 'lose'
             else:
                 action = 'win'
