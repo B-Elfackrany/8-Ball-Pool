@@ -141,23 +141,27 @@ class Sound:
         self.mario_sound.loop()
         self.mario_sound.amp(self.volume_level)
         
+    def update(self):
+        if not self.mario_sound.isPlaying():
+            self.play_mario_sound()
+        
     def toggle_sound(self):
         #this function controls the mechanism for the sound button on the homepage 
-        if not self.is_sound_on:            
-            self.mario_sound.loop()
-            self.is_sound_on = True             
+        # if not self.is_sound_on:            
+        #     self.mario_sound.loop()
+        #     self.is_sound_on = True             
+        # else:
+        if self.is_decreasing:
+            # Decrease volume if sound is on
+            self.volume_level = max(0.0, self.volume_level - 0.1)  # Cap volume at 0.0
+            if self.volume_level == 0.0:
+                self.is_decreasing = False
         else:
-            if self.is_decreasing:
-                # Decrease volume if sound is on
-                self.volume_level = max(0.0, self.volume_level - 0.1)  # Cap volume at 0.0
-                if self.volume_level == 0.0:
-                    self.is_decreasing = False
-            else:
-                self.volume_level = min(1.0, self.volume_level + 0.1)
-                if self.volume_level == 1.0:
-                    self.is_decreasing = True       
+            self.volume_level = min(1.0, self.volume_level + 0.1)
+            if self.volume_level == 1.0:
+                self.is_decreasing = True       
 
-            self.mario_sound.amp(self.volume_level)
+        self.mario_sound.amp(self.volume_level)
 
 
 # ==========================================================
@@ -657,6 +661,7 @@ class Game:
         if(self.in_play and self.is_static()):
             self.in_play=0
             self.evaluate_turn()
+        sound_manager.update()
     
     def display(self):
         if self.alive:
@@ -678,6 +683,7 @@ class Game:
             # self.cue.track(distance if self.in_hit else 0)
             self.cue.display()
             self.textbox.display_text_box()
+            
 
 
         stroke(3)
@@ -872,9 +878,6 @@ def draw():
         homepage.draw_home_page()
     elif homepage.on_instructions_page:
         homepage.draw_instructions_page()
-    # elif not game.alive:
-    #     print("ALIVING GAME")
-    #     # homepage.start_game()
     elif is_game_over:
         gameoverpage.draw_gameover_page()
     else:
