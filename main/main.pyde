@@ -119,7 +119,7 @@ class Sound:
         self.pocket_sound = pocket_sound
         self.mario_sound = mario_sound
         self.is_sound_on = True
-        self.volume_level = 1.0
+        self.volume_level = 0.4
         self.is_decreasing = True
         self.wasted_sound = wasted_sound
         
@@ -221,9 +221,11 @@ class Ball:
         self.velocity.y = v*sin(theta)*(-1 if self.velocity.y<0 else 1)
         
     def collide(self, other):
-        game.has_collided=1
-        if self.velocity.x>0 or self.velocity.y>0:
-            sound_manager.play_collision_sound()
+        if self.velocity.x!=0 or other.velocity.x!=0 or self.velocity.y!=0 or other.velocity.y!=0:
+            game.has_collided=1
+        else:
+            return
+        sound_manager.play_collision_sound()
         if game.first_collision==None:
             game.first_collision=other.type
         dx = self.position.x - other.position.x
@@ -433,23 +435,23 @@ class TextBox:
     def __init__(self):
         self.foul_message = None
         self.turn_message = None
-        self.show_text_box = False
         self.starting_player_text = None
         
     def display_text_box(self):
         # print(self.show_text_box, self.starting_player_text)
-        if self.show_text_box and self.foul_message:
+        if self.foul_message:
+            print('zeby')
             image(text_box, 200, 710, 600, 80)
             #textFont(font)  
             fill(255) 
             textAlign(CENTER)
             text(self.foul_message, 200 + text_box.width / 2, 719 + text_box.height / 2)
-        elif self.show_text_box and self.turn_message:
+        elif self.turn_message:
             image(text_box, 200, 710, 600, 80)
             fill(255) 
             textAlign(CENTER)
             text(self.turn_message, 200 + text_box.width / 2, 719 + text_box.height / 2)
-        elif self.show_text_box and self.starting_player_text:
+        elif self.starting_player_text:
             image(text_box, 200, 710, 600, 80)
             fill(255) 
             textAlign(CENTER)
@@ -462,11 +464,10 @@ class TextBox:
 class Game:
     def __init__(self):
         positions = [
-    (210, 260), (210, 290), (180, 245),
-    (180, 305), (150, 230), (150, 260), (150, 290),
-    (150, 320), (120, 215), (120, 245),
-    (120, 275), (120, 305), (120, 335)
-]
+        (210, 260), (210, 290), (180, 245),
+        (180, 305), (150, 230), (150, 260), (150, 290),
+        (150, 320), (120, 215), (120, 245),
+        (120, 275), (120, 305), (120, 335)]
         self.alive=0
         self.balls = []
         self.balls.append(Ball(240+30, 275+150, 1))
@@ -516,7 +517,6 @@ class Game:
         turn = random.choice([0,1])
         self.starting_player = self.players[turn]    
         self.textbox.starting_player_text = str(self.starting_player.name) + " starts the game and gets to break <3"   
-        self.textbox.show_text_box = True
         self.players[turn].is_turn=1
         return turn
     
@@ -525,7 +525,6 @@ class Game:
         self.turn=1-self.turn
         self.players[self.turn].is_turn=1
         self.textbox.turn_message = "Current turn:" + " " + str(self.players[self.turn].name)
-        self.textbox.show_text_box = True
         
     def assign_groups_on_first_pocket(self, ball, current_player, opponent):
         if not current_player.group and ball.type in ["solids", "stripes"]:
@@ -537,10 +536,9 @@ class Game:
             self.drag(x,y)
         else:
             self.cue.place()
-            self.textbox.show_text_box = True
             self.textbox.foul_message = None
             self.textbox.turn_message = "Current turn:" + " " + str(self.players[self.turn].name)
-            print("TextBox updated - Turn Message:", {self.textbox.turn_message}, "Show:", {self.textbox.show_text_box})
+            print("TextBox updated - Turn Message:", {self.textbox.turn_message})
             
     def drag(self,x,y):
         if self.alive:
@@ -586,39 +584,35 @@ class Game:
             pocketed[ball.type]=1
                 
         print(pocketed['stripes'], pocketed['solid'])
-
+        action = 'continue'
         if pocketed['8-ball']:
-            print("8-ball IS POCKETED FOUL - (GAME OVER)")
-            sound_manager.mario_sound.pause()
-            self.textbox.foul_message = "FOUL: 8-Ball was pocketed. GAME OVER! (womp womp)"
-            self.textbox.show_text_box = True
-            self.update()
-            sound_manager.play_wasted_sound()
-            time.sleep(5)
-            sound_manager.mario_sound.play()
-            self.game_over()
+            if self.players[self.turn].group != '8-ball':
+                print("8-ball IS POCKETED FOUL - (GAME OVER)")
+                sound_manager.mario_sound.pause()
+                self.textbox.foul_message = "FOUL: 8-Ball was pocketed. GAME OVER! (womp womp)"
+                self.textbox.display_text_box()
+                self.display()
+                print('a7a')
+                sound_manager.play_wasted_sound()
+                sound_manager.mario_sound.play()
+                action = 'lose'
+            else:
+                action = 'win'
         elif self.cue.is_pocketed:
             print("CUE IS POCKETED FOUL")
             self.textbox.foul_message = "FOUL: Cue ball was pocketed! (oopsies)"
-            self.textbox.show_text_box = True
-            self.switch_turns()
-            self.ball_in_hand()
+            action = 'foul'
         elif self.has_collided==0:
             print("NO HIT FOUL")
             self.textbox.foul_message = "FOUL: No ball was hit! (task failed succesfully)"
-            self.textbox.show_text_box = True
-            self.switch_turns()
-            self.ball_in_hand()
+            action = 'foul'
         elif self.first_collision!=self.players[self.turn].group and self.players[self.turn].group!=None:
             print("OPPONENT BALL HIT FIRST FOUL") 
             self.textbox.foul_message = "FOUL: Opponent's ball hit first! (rookie mistake)"
-            self.textbox.show_text_box = True
-            self.switch_turns()
-            self.ball_in_hand()
+            action = 'foul'
         elif ((len(pocketed_balls)==0) or (self.players[self.turn].group !=None and not pocketed[self.players[self.turn].group])):
-            self.switch_turns()
-        elif not self.players[self.turn].list_of_balls and self.players[self.turn].group!=None:
-            self.game_over()
+            action = 'switch'
+
             
         if not self.is_break and pocketed['stripes']+pocketed['solid']==1 and self.players[self.turn].group==None:
             if pocketed['solid']:
@@ -632,6 +626,7 @@ class Game:
         if action == 'win':
             self.game_over()
         elif action == 'lose':
+            time.sleep(5)
             self.switch_turns()
             self.game_over()
         elif action == 'foul':
@@ -864,8 +859,7 @@ sound_manager = Sound()
 
 def setup():
     size(RESOLUTION_W, RESOLUTION_H)
-    # sound_manager.play_mario_sound()
-    sound_manager.play_wasted_sound()
+    sound_manager.play_mario_sound()
     # game.setup()
     # mario_sound.play() 
     # mario_sound.loop()
