@@ -483,7 +483,6 @@ class Game:
         for n in rest_of_balls:
             x,y=positions.pop()
             self.balls.append(Ball(int(x + 30), int(y + 150), int(n)))
-        for ball in self.balls:
 
     
         self.players = [Player("Player 1",1),Player("Player 2",2)]
