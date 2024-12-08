@@ -606,7 +606,7 @@ class Game:
             print("NO HIT FOUL")
             self.textbox.foul_message = "FOUL: No ball was hit! (task failed succesfully)"
             action = 'foul'
-        elif self.first_collision!=self.players[self.turn].group and self.players[self.turn].group!=None:
+        elif (self.first_collision!=self.players[self.turn].group and self.players[self.turn].group!=None) or (self.first_collision == '8-ball' and self.players[self.turn].group!='8-ball'):
             print("OPPONENT BALL HIT FIRST FOUL") 
             self.textbox.foul_message = "FOUL: Opponent's ball hit first! (rookie mistake)"
             action = 'foul'
