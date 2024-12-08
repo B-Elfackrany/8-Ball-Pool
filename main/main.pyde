@@ -223,7 +223,7 @@ class Ball:
             v = 0
         self.velocity.x = v*cos(theta)*(-1 if self.velocity.x<0 else 1)
         self.velocity.y = v*sin(theta)*(-1 if self.velocity.y<0 else 1)
-        
+    #Simulating 2 ball collision
     def collide(self, other):
         if self.velocity.x!=0 or other.velocity.x!=0 or self.velocity.y!=0 or other.velocity.y!=0:
             game.has_collided=1
@@ -254,6 +254,8 @@ class Ball:
         other.position.x -= overlap * nx / 2
         other.position.y -= overlap * ny / 2
 
+
+    #Simulating ball-rail collision
     def check_collision(self):
         if self.position.x-self.radius <= LEFT_RAIL:
             if(self.position.y-self.radius>=245 and self.position.y+self.radius<=602):
@@ -306,7 +308,8 @@ class CueBall(Ball):
         
     def in_hand(self):
         self.is_in_hand=True
-        
+    
+    #Tracking mouse movement of player
     def track(self,distance):
         x,y=mouseX-self.position.x,mouseY-self.position.y
         angle = math.atan(float(y) / (x)) if x!=0 else PI/2
@@ -444,7 +447,6 @@ class TextBox:
     def display_text_box(self):
         # print(self.show_text_box, self.starting_player_text)
         if self.foul_message:
-            print('zeby')
             image(text_box, 200, 710, 600, 80)
             #textFont(font)  
             fill(255) 
@@ -482,7 +484,6 @@ class Game:
             x,y=positions.pop()
             self.balls.append(Ball(int(x + 30), int(y + 150), int(n)))
         for ball in self.balls:
-            print(ball.position.x,ball.position.y,ball.ID)
 
     
         self.players = [Player("Player 1",1),Player("Player 2",2)]
@@ -576,6 +577,7 @@ class Game:
         if distance<=2*BALL_RADIUS:
             ball1.collide(ball2)
             
+    #Evaluating game rule logic
     def evaluate_turn(self):
         print("TURN ENDED")
         pocketed_balls=[]
@@ -587,7 +589,6 @@ class Game:
         for ball in pocketed_balls:
             pocketed[ball.type]=1
                 
-        print(pocketed['stripes'], pocketed['solid'])
         action = 'continue'
         if pocketed['8-ball']:
             if self.players[self.turn].group != '8-ball':
@@ -665,22 +666,18 @@ class Game:
     
     def display(self):
         if self.alive:
-            # print("TESTTT")
             image(main_bg, 0, 0, RESOLUTION_W, RESOLUTION_H)
             image(table, 20, 150, RESOLUTION_W - 40, RESOLUTION_H - 250)
             distance = math.sqrt((mouseX-self.curx)**2+(mouseY-self.cury)**2)
             distance/=10
             self.cue.track(distance if self.in_hit else 0)
             self.update()
-            # print(self.cue.velocity.x,self.cue.velocity.y)
             for ball in self.balls:
                 ball.display()
             self.players[0].display()
             self.players[1].display()
             fill(255,255,255)
             textAlign(CENTER)
-            # text(str(self.textbox.starting_player_text), RESOLUTION_W/2, 180)
-            # self.cue.track(distance if self.in_hit else 0)
             self.cue.display()
             self.textbox.display_text_box()
             
@@ -867,9 +864,6 @@ sound_manager = Sound()
 def setup():
     size(RESOLUTION_W, RESOLUTION_H)
     sound_manager.play_mario_sound()
-    # game.setup()
-    # mario_sound.play() 
-    # mario_sound.loop()
     
 def draw():
     background(255,255,255)
